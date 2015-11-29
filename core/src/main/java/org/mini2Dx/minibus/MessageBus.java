@@ -19,7 +19,7 @@ public class MessageBus {
 	/**
 	 * The default pool size for subscriptions per channel
 	 */
-	public static final int DEFAULT_POOL_SIZE = 10;
+	public static final int DEFAULT_POOL_SIZE = 5;
 
 	private final int subscriptionPoolSize;
 	private final ConcurrentMap<String, Channel> channels;
