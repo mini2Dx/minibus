@@ -15,37 +15,53 @@ import org.mini2Dx.minibus.MessageConsumer;
 public class Channel {
 	private final String name;
 	private final int size;
-	private final ChannelSubscription [] subscriptions;
+	private final ChannelSubscription[] subscriptions;
 	private final BitSet allocated;
-	
+
 	private int lastAllocatedIndex;
-	
+
 	public Channel(String name, int size) {
 		this.name = name;
 		this.size = size;
-		
+
 		subscriptions = new ChannelSubscription[size];
-		for(int i = 0; i < size; i++) {
+		for (int i = 0; i < size; i++) {
 			subscriptions[i] = new ChannelSubscription(i, this);
 		}
-		
+
 		allocated = new BitSet(size);
 	}
-	
+
 	public void publish(Message message) {
-		for(int i = 0; i < size; i++) {
-			if(allocated.get(i)) {
+		for (int i = 0; i < size; i++) {
+			if (allocated.get(i)) {
 				subscriptions[i].queue(message);
 			}
 		}
 	}
-	
+
 	public ChannelSubscription allocate(MessageConsumer consumer) {
-		int index = lastAllocatedIndex;
-		allocated.set(index);
-		ChannelSubscription result = subscriptions[index];
-		result.allocate(consumer);
-		return result;
+		int startIndex = lastAllocatedIndex;
+		for (int i = startIndex + 1; i < size; i++) {
+			if (!allocated.get(i)) {
+				lastAllocatedIndex = i;
+				allocated.set(i);
+				ChannelSubscription result = subscriptions[i];
+				result.allocate(consumer);
+				return result;
+			}
+		}
+		for (int i = 0; i < startIndex; i++) {
+			if (!allocated.get(i)) {
+				lastAllocatedIndex = i;
+				allocated.set(i);
+				ChannelSubscription result = subscriptions[i];
+				result.allocate(consumer);
+				return result;
+			}
+		}
+		throw new RuntimeException(
+				"No channel subscriptions available in subscription pool. Please create a MessageBus with a larger pool size.");
 	}
 
 	public void release(int index) {
