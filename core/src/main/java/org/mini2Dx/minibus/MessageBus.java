@@ -87,7 +87,9 @@ public class MessageBus {
 	 * @return A new {@link DelayedMessageConsumer}
 	 */
 	public MessageConsumer createDelayedConsumer(MessageHandler messageHandler, float delay) {
-		return new DelayedMessageConsumer(this, messageHandler, delay);
+		MessageConsumer result = new DelayedMessageConsumer(this, messageHandler, delay);
+		consumers.add(result);
+		return result;
 	}
 
 	/**
@@ -100,7 +102,9 @@ public class MessageBus {
 	 * @return A new {@link OnUpdateMessageConsumer}
 	 */
 	public MessageConsumer createOnUpdateConsumer(MessageHandler messageHandler) {
-		return new OnUpdateMessageConsumer(this, messageHandler);
+		MessageConsumer result = new OnUpdateMessageConsumer(this, messageHandler);
+		consumers.add(result);
+		return result;
 	}
 
 	/**
