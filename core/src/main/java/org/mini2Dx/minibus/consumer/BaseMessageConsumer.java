@@ -39,7 +39,10 @@ public abstract class BaseMessageConsumer implements MessageConsumer {
 	
 	@Override
 	public void subscribe(String channel) {
-		subscriptions.putIfAbsent(channel, messageBus.subscribe(this, channel));
+		if(subscriptions.containsKey(channel)) {
+			return;
+		}
+		subscriptions.put(channel, messageBus.subscribe(this, channel));
 	}
 
 	@Override
