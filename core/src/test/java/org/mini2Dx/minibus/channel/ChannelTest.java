@@ -28,9 +28,30 @@ public class ChannelTest {
 	}
 	
 	@Test(expected=RuntimeException.class)
-	public void testNoSubscriptionsAvailable() {
+	public void testNoSubscriptionsAvailableThrowsException() {
 		for(int i = 0; i < POOL_SIZE + 1; i++) {
 			channel.allocate(consumer);
 		}
+	}
+	
+	@Test
+	public void testSubscriptionsAvailableAfterUnsubscribe() {
+		for(int i = 0; i < POOL_SIZE - 1; i++) {
+			channel.allocate(consumer);
+		}
+		ChannelSubscription subscription = channel.allocate(consumer);
+		subscription.release();
+		channel.allocate(consumer);
+	}
+	
+	@Test(expected=RuntimeException.class)
+	public void testNoSubscriptionsAvailableThrowsExcetptionAfterUnsubscribe() {
+		for(int i = 0; i < POOL_SIZE - 1; i++) {
+			channel.allocate(consumer);
+		}
+		ChannelSubscription subscription = channel.allocate(consumer);
+		subscription.release();
+		channel.allocate(consumer);
+		channel.allocate(consumer);
 	}
 }

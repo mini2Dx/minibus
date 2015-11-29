@@ -42,7 +42,7 @@ public class Channel {
 
 	public ChannelSubscription allocate(MessageConsumer consumer) {
 		int startIndex = lastAllocatedIndex;
-		for (int i = startIndex + 1; i < size; i++) {
+		for (int i = startIndex; i < size; i++) {
 			if (!allocated.get(i)) {
 				lastAllocatedIndex = i;
 				allocated.set(i);
