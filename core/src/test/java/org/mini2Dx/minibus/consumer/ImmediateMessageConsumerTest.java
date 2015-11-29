@@ -29,6 +29,17 @@ public class ImmediateMessageConsumerTest {
 	}
 	
 	@Test
+	public void testNoDuplicateSubscriptions() {
+		Message message = new DummyMessage(1);
+		consumer.subscribe(CHANNEL_1);
+		consumer.subscribe(CHANNEL_1);
+		
+		messageBus.publish(CHANNEL_1, message);
+		Assert.assertEquals(true, messageHandler.getMessagesReceived(CHANNEL_1).contains(message));
+		Assert.assertEquals(1, messageHandler.getMessagesReceived(CHANNEL_1).size());
+	}
+	
+	@Test
 	public void testMessagesBySubscription() {
 		Message message = new DummyMessage(1);
 		consumer.subscribe(CHANNEL_1);
