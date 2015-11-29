@@ -1,0 +1,58 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'maven'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	
+	group = 'org.mini2Dx.minibus'
+	version = '1.0.0-SNAPSHOT'
+
+	repositories {
+		mavenCentral()
+		maven { url "http://maven.mini2dx.org/content/repositories/thirdparty" }
+	}
+
+	uploadArchives {
+		repositories {
+			mavenDeployer {
+				repository(url: "http://maven.mini2dx.org/content/repositories/releases") {
+					if(project.hasProperty('mini2DxMavenUser')) {
+						authentication(userName: project.property('mini2DxMavenUser'), password: project.property('mini2DxMavenPassword'))
+					}
+				}
+			}
+		}
+	}
+
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+}
+
+def docProjects() {
+	subprojects.findAll { !it.name.contains('uat') }
+}
+
+configure(docProjects()) {
+	apply plugin: "java"
+}
+
+project(":" + rootProject.name + "-core") {
+	dependencies {
+		testCompile 'junit:junit:4.11'
+		testCompile "org.jmock:jmock-junit4:2.5.1"
+		testCompile "org.jmock:jmock-legacy:2.5.1"
+	}
+	
+	task docs(type: Javadoc) {
+		source docProjects().collect {p -> p.sourceSets.main.allJava }
+		classpath = files(docProjects().collect {p -> p.sourceSets.main.compileClasspath})
+		destinationDir = new File(project.parent.projectDir, 'docs')
+	}
+	docs.dependsOn docProjects().build
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
+}
