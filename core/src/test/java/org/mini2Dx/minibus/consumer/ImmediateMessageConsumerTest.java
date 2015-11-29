@@ -24,6 +24,11 @@ public class ImmediateMessageConsumerTest {
 	private final MessageConsumer consumer = messageBus.createImmediateConsumer(messageHandler);
 	
 	@Test
+	public void testAfterInitialisation() {
+		Assert.assertEquals(true, messageHandler.isAfterInitialisationCalled());
+	}
+	
+	@Test
 	public void testMessagesBySubscription() {
 		Message message = new DummyMessage(1);
 		consumer.subscribe(CHANNEL_1);

@@ -9,9 +9,21 @@ package org.mini2Dx.minibus;
 public interface MessageHandler {
 
 	/**
+	 * Called after the {@link MessageHandler} has been connected to a
+	 * {@link MessageConsumer}
+	 * 
+	 * @param consumer
+	 *            The {@link MessageConsumer} that this handler was connected to
+	 */
+	public void afterInitialisation(MessageConsumer consumer);
+
+	/**
 	 * Called when a {@link Message} is received
-	 * @param channel The channel the {@link Message} was received on
-	 * @param message The {@link Message} that was received
+	 * 
+	 * @param channel
+	 *            The channel the {@link Message} was received on
+	 * @param message
+	 *            The {@link Message} that was received
 	 */
 	public void onMessageReceived(String channel, Message message);
 }

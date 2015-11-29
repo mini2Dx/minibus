@@ -25,6 +25,11 @@ public class DelayedMessageConsumerTest {
 	private final MessageConsumer consumer = messageBus.createDelayedConsumer(messageHandler, DELAY);
 	
 	@Test
+	public void testAfterInitialisation() {
+		Assert.assertEquals(true, messageHandler.isAfterInitialisationCalled());
+	}
+	
+	@Test
 	public void testMessagesBySubscription() {
 		Message message = new DummyMessage(1);
 		consumer.subscribe(CHANNEL_1);
