@@ -6,10 +6,11 @@ package org.mini2Dx.minibus.channel;
 import java.util.BitSet;
 
 import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageConsumer;
 
 /**
- *
+ * A {@link Message} channel on the {@link MessageBus}
  */
 public class Channel {
 	private final String name;

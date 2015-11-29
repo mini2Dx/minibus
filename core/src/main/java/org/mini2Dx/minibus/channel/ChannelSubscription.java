@@ -10,7 +10,7 @@ import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageConsumer;
 
 /**
- *
+ * A {@link MessageConsumer} subscription to a {@link Channel}
  */
 public class ChannelSubscription {
 	private final Queue<Message> messageQueue = new ConcurrentLinkedQueue<Message>();
