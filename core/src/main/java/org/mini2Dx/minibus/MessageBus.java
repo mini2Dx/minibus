@@ -3,8 +3,10 @@
  */
 package org.mini2Dx.minibus;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mini2Dx.minibus.channel.Channel;
 import org.mini2Dx.minibus.channel.ChannelSubscription;
@@ -21,8 +23,9 @@ public class MessageBus {
 	 */
 	public static final int DEFAULT_POOL_SIZE = 5;
 
+	private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<String, Channel>();
+	private final List<MessageConsumer> consumers = new CopyOnWriteArrayList<MessageConsumer>();
 	private final int subscriptionPoolSize;
-	private final ConcurrentMap<String, Channel> channels;
 
 	/**
 	 * Constructs a message bus with the {@link #DEFAULT_POOL_SIZE}
@@ -41,8 +44,19 @@ public class MessageBus {
 	 */
 	public MessageBus(int subscriptionPoolSize) {
 		this.subscriptionPoolSize = subscriptionPoolSize;
+	}
 
-		channels = new ConcurrentHashMap<String, Channel>();
+	/**
+	 * Updates all {@link MessageConsumer}s. To update consumers individually,
+	 * call {@link MessageConsumer#update(float)}.
+	 * 
+	 * @param delta (in seconds) The timestep or amount of time that has elapsed
+	 *            since the last frame
+	 */
+	public void updateConsumers(float delta) {
+		for (MessageConsumer consumer : consumers) {
+			consumer.update(delta);
+		}
 	}
 
 	/**
@@ -55,7 +69,9 @@ public class MessageBus {
 	 * @return A new {@link ImmediateMessageConsumer}
 	 */
 	public MessageConsumer createImmediateConsumer(MessageHandler messageHandler) {
-		return new ImmediateMessageConsumer(this, messageHandler);
+		MessageConsumer result = new ImmediateMessageConsumer(this, messageHandler);
+		consumers.add(result);
+		return result;
 	}
 
 	/**
@@ -112,5 +128,12 @@ public class MessageBus {
 			channels.put(channel, new Channel(channel, subscriptionPoolSize));
 		}
 		return channels.get(channel).allocate(consumer);
+	}
+
+	/**
+	 * Internal use only. Please use {@link MessageConsumer#dispose()}
+	 */
+	public void dispose(MessageConsumer messageConsumer) {
+		consumers.remove(messageConsumer);
 	}
 }

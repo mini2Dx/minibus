@@ -51,5 +51,6 @@ public abstract class BaseMessageConsumer implements MessageConsumer {
 			subscription.release();
 		}
 		subscriptions.clear();
+		messageBus.dispose(this);
 	}
 }
