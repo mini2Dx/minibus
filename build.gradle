@@ -10,6 +10,7 @@ subprojects {
 	version = '1.0.0-SNAPSHOT'
 
 	repositories {
+		mavenLocal()
 		mavenCentral()
 		maven { url "http://maven.mini2dx.org/content/repositories/thirdparty" }
 	}
