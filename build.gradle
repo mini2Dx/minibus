@@ -7,18 +7,18 @@ subprojects {
 	apply plugin: 'idea'
 	
 	group = 'org.mini2Dx.minibus'
-	version = '1.0.0-SNAPSHOT'
+	version = '1.0.0-alpha1'
 
 	repositories {
 		mavenLocal()
 		mavenCentral()
-		maven { url "http://maven.mini2dx.org/content/repositories/thirdparty" }
+		maven { url "https://mini2dx.org/maven/content/repositories/thirdparty" }
 	}
 
 	uploadArchives {
 		repositories {
 			mavenDeployer {
-				repository(url: "http://maven.mini2dx.org/content/repositories/releases") {
+				repository(url: "https://mini2dx.org/maven/content/repositories/releases") {
 					if(project.hasProperty('mini2DxMavenUser')) {
 						authentication(userName: project.property('mini2DxMavenUser'), password: project.property('mini2DxMavenPassword'))
 					}
