@@ -7,7 +7,7 @@ subprojects {
 	apply plugin: 'idea'
 	
 	group = 'org.mini2Dx.minibus'
-	version = '1.0.0-alpha1'
+	version = '1.0.0-SNAPSHOT'
 
 	repositories {
 		mavenLocal()
