@@ -1,7 +1,6 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 subprojects {
-	apply plugin: 'java'
 	apply plugin: 'maven'
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
@@ -14,21 +13,6 @@ subprojects {
 		mavenCentral()
 		maven { url "https://mini2dx.org/maven/content/repositories/thirdparty" }
 	}
-
-	uploadArchives {
-		repositories {
-			mavenDeployer {
-				repository(url: "https://mini2dx.org/maven/content/repositories/releases") {
-					if(project.hasProperty('mini2DxMavenUser')) {
-						authentication(userName: project.property('mini2DxMavenUser'), password: project.property('mini2DxMavenPassword'))
-					}
-				}
-			}
-		}
-	}
-
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
 }
 
 def docProjects() {
@@ -37,6 +21,37 @@ def docProjects() {
 
 configure(docProjects()) {
 	apply plugin: "java"
+	apply plugin: "maven-publish"
+	
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+	
+	task sourceJar(type: Jar) {
+		from sourceSets.main.allJava
+	}
+	
+	publishing {
+		repositories {
+			maven {
+				url "https://mini2dx.org/maven/content/repositories/releases"
+				if(project.hasProperty('mini2DxMavenUser')) {
+					credentials {
+						username = project.property('mini2DxMavenUser')
+						password = project.property('mini2DxMavenPassword')
+					}
+				}
+			}
+		}
+		publications {
+			maven(MavenPublication) {
+				from components.java
+				
+				artifact sourceJar {
+					classifier "sources"
+				}
+			}
+		}
+	}
 }
 
 project(":" + rootProject.name + "-core") {
@@ -55,5 +70,5 @@ project(":" + rootProject.name + "-core") {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.4'
+    gradleVersion = '2.9'
 }
