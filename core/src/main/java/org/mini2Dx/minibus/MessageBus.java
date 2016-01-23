@@ -123,6 +123,14 @@ public class MessageBus {
 		}
 		channels.get(channel).publish(message);
 	}
+	
+	/**
+	 * Publishes a {@link Message} to the default channel
+	 * @param message The {@link Message} to be published
+	 */
+	public void publish(Message message) {
+		publish(Channel.DEFAULT_CHANNEL, message);
+	}
 
 	/**
 	 * Internal use only. Please use {@link MessageConsumer#subscribe(String)}

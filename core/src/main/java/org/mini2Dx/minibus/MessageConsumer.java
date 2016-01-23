@@ -3,6 +3,8 @@
  */
 package org.mini2Dx.minibus;
 
+import org.mini2Dx.minibus.channel.Channel;
+
 /**
  * Common interface to message consumer implementations
  */
@@ -24,6 +26,11 @@ public interface MessageConsumer extends MessageHandler {
 	 *            doesn't exist)
 	 */
 	public void subscribe(String channel);
+	
+	/**
+	 * Subscribers this consumer to {@link Channel#DEFAULT_CHANNEL}
+	 */
+	public void subscribeToDefaultChannel();
 
 	/**
 	 * Unsubscribes this consumer from a channel on the {@link MessageBus}
@@ -32,6 +39,11 @@ public interface MessageConsumer extends MessageHandler {
 	 *            The channel to unsubscribe from
 	 */
 	public void unsubscribe(String channel);
+	
+	/**
+	 * Unsubscribes this consumer from {@link Channel#DEFAULT_CHANNEL}
+	 */
+	public void unsubscribeFromDefaultChannel();
 
 	/**
 	 * Returns if this consumer immediately processes {@link Message}s

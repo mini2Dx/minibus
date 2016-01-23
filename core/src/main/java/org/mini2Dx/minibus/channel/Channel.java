@@ -13,6 +13,8 @@ import org.mini2Dx.minibus.MessageConsumer;
  * A {@link Message} channel on the {@link MessageBus}
  */
 public class Channel {
+	public static final String DEFAULT_CHANNEL = "default";
+	
 	private final String name;
 	private final int size;
 	private final ChannelSubscription[] subscriptions;

@@ -10,6 +10,7 @@ import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageConsumer;
 import org.mini2Dx.minibus.MessageHandler;
+import org.mini2Dx.minibus.channel.Channel;
 import org.mini2Dx.minibus.channel.ChannelSubscription;
 
 /**
@@ -52,6 +53,16 @@ public abstract class BaseMessageConsumer implements MessageConsumer {
 			return;
 		}
 		subscription.release();
+	}
+	
+	@Override
+	public void subscribeToDefaultChannel() {
+		subscribe(Channel.DEFAULT_CHANNEL);
+	}
+
+	@Override
+	public void unsubscribeFromDefaultChannel() {
+		unsubscribe(Channel.DEFAULT_CHANNEL);
 	}
 	
 	@Override
