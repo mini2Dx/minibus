@@ -11,3 +11,4 @@ gradle-app.setting
 .settings/
 .project
 .classpath
+rebel.xml
