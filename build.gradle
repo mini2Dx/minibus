@@ -5,7 +5,7 @@ subprojects {
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
 	
-	group = 'org.mini2Dx.minibus'
+	group = 'org.mini2Dx'
 	version = '1.0.0-SNAPSHOT'
 
 	repositories {
