@@ -39,15 +39,15 @@ import org.mini2Dx.minibus.dummy.DummyMessage;
 import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 
 /**
- * Unit tests for {@link OnUpdateMessageConsumer}
+ * Unit tests for {@link ConcurrentMessageConsumer}
  */
-public class OnUpdateMessageConsumerTest {
+public class ConcurrentMessageConsumerTest {
 	private static final String CHANNEL_1 = "channel1";
 	private static final String CHANNEL_2 = "channel2";
 	
 	private final MessageBus messageBus = new MessageBus(10);
 	private final DummyMessageHandler messageHandler = new DummyMessageHandler();
-	private final MessageConsumer consumer = messageBus.createOnUpdateConsumer(messageHandler);
+	private final MessageConsumer consumer = messageBus.createConcurrentConsumer(messageHandler);
 	
 	@After
 	public void teardown() {
@@ -66,8 +66,7 @@ public class OnUpdateMessageConsumerTest {
 		consumer.subscribe(CHANNEL_1);
 		
 		messageBus.publish(CHANNEL_1, message);
-		Assert.assertEquals(false, messageHandler.getMessagesReceived(CHANNEL_1).contains(message));
-		consumer.update(0.1f);
+		sleep();
 		Assert.assertEquals(true, messageHandler.getMessagesReceived(CHANNEL_1).contains(message));
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(CHANNEL_1).size());
 	}
@@ -81,7 +80,8 @@ public class OnUpdateMessageConsumerTest {
 		Assert.assertEquals(false, messageHandler.getMessagesReceived(CHANNEL_2).contains(message));
 		
 		messageBus.publish(CHANNEL_1, message);
-		Assert.assertEquals(false, messageHandler.getMessagesReceived(CHANNEL_1).contains(message));
+		sleep();
+		Assert.assertEquals(true, messageHandler.getMessagesReceived(CHANNEL_1).contains(message));
 		Assert.assertEquals(false, messageHandler.getMessagesReceived(CHANNEL_2).contains(message));
 		
 		consumer.update(0.1f);
@@ -89,6 +89,7 @@ public class OnUpdateMessageConsumerTest {
 		Assert.assertEquals(false, messageHandler.getMessagesReceived(CHANNEL_2).contains(message));
 		
 		messageBus.publish(CHANNEL_2, message);
+		sleep();
 		Assert.assertEquals(true, messageHandler.getMessagesReceived(CHANNEL_1).contains(message));
 		Assert.assertEquals(false, messageHandler.getMessagesReceived(CHANNEL_2).contains(message));
 		
@@ -110,7 +111,8 @@ public class OnUpdateMessageConsumerTest {
 		Assert.assertEquals(false, messageHandler.getMessagesReceived(CHANNEL_2).contains(message));
 		
 		messageBus.publish(CHANNEL_1, message);
-		Assert.assertEquals(false, messageHandler.getMessagesReceived(CHANNEL_1).contains(message));
+		sleep();
+		Assert.assertEquals(true, messageHandler.getMessagesReceived(CHANNEL_1).contains(message));
 		Assert.assertEquals(false, messageHandler.getMessagesReceived(CHANNEL_2).contains(message));
 		
 		consumer.update(0.1f);
@@ -118,8 +120,9 @@ public class OnUpdateMessageConsumerTest {
 		Assert.assertEquals(false, messageHandler.getMessagesReceived(CHANNEL_2).contains(message));
 		
 		messageBus.publish(CHANNEL_2, message);
+		sleep();
 		Assert.assertEquals(true, messageHandler.getMessagesReceived(CHANNEL_1).contains(message));
-		Assert.assertEquals(false, messageHandler.getMessagesReceived(CHANNEL_2).contains(message));
+		Assert.assertEquals(true, messageHandler.getMessagesReceived(CHANNEL_2).contains(message));
 		
 		consumer.update(0.1f);
 		Assert.assertEquals(true, messageHandler.getMessagesReceived(CHANNEL_1).contains(message));
@@ -127,5 +130,11 @@ public class OnUpdateMessageConsumerTest {
 		
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(CHANNEL_1).size());
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(CHANNEL_2).size());
+	}
+	
+	private void sleep() {
+		try {
+			Thread.sleep(100);
+		} catch (Exception e) {}
 	}
 }

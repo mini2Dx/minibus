@@ -27,32 +27,27 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.mini2Dx.minibus.consumer;
+package org.mini2Dx.minibus.util;
 
 import org.mini2Dx.minibus.Message;
-import org.mini2Dx.minibus.MessageBus;
-import org.mini2Dx.minibus.MessageConsumer;
-import org.mini2Dx.minibus.MessageHandler;
-import org.mini2Dx.minibus.channel.ChannelSubscription;
 
 /**
- * Consumes {@link Message}s when {@link #update(float)} is called
+ *
  */
-public class OnUpdateMessageConsumer extends BaseMessageConsumer {
+public class ConcurrentMessage {
+	private final String channel;
+	private final Message message;
 	
-	public OnUpdateMessageConsumer(MessageBus messageBus, MessageHandler messageHandler) {
-		super(messageBus, messageHandler);
+	public ConcurrentMessage(String channel, Message message) {
+		this.channel = channel;
+		this.message = message;
 	}
 
-	@Override
-	public void update(float delta) {
-		for(ChannelSubscription subscription : subscriptions.values()) {
-			subscription.flush();
-		}
+	public String getChannel() {
+		return channel;
 	}
-
-	@Override
-	public boolean isImmediate() {
-		return false;
+	
+	public Message getMessage() {
+		return message;
 	}
 }

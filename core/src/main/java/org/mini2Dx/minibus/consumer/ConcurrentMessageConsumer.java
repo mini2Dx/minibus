@@ -29,30 +29,70 @@
  */
 package org.mini2Dx.minibus.consumer;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageBus;
-import org.mini2Dx.minibus.MessageConsumer;
 import org.mini2Dx.minibus.MessageHandler;
-import org.mini2Dx.minibus.channel.ChannelSubscription;
+import org.mini2Dx.minibus.util.ConcurrentMessage;
 
 /**
- * Consumes {@link Message}s when {@link #update(float)} is called
+ * Processes {@link Message}s on its own {@link Thread}. This thread will not
+ * consume CPU if no messages are available. The consumer/thread can be stopped
+ * by calling {@link ConcurrentMessageConsumer#dispose()}
  */
-public class OnUpdateMessageConsumer extends BaseMessageConsumer {
-	
-	public OnUpdateMessageConsumer(MessageBus messageBus, MessageHandler messageHandler) {
+public class ConcurrentMessageConsumer extends BaseMessageConsumer implements Runnable {
+	private final BlockingQueue<ConcurrentMessage> messageQueue = new LinkedBlockingQueue<ConcurrentMessage>();
+	private final AtomicBoolean running = new AtomicBoolean(true);
+
+	public ConcurrentMessageConsumer(MessageBus messageBus, MessageHandler messageHandler) {
 		super(messageBus, messageHandler);
+		new Thread(this).start();
 	}
 
 	@Override
-	public void update(float delta) {
-		for(ChannelSubscription subscription : subscriptions.values()) {
-			subscription.flush();
+	public void onMessageReceived(String channel, Message message) {
+		try {
+			messageQueue.put(new ConcurrentMessage(channel, message));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 
 	@Override
+	public void update(float delta) {
+	}
+
+	@Override
 	public boolean isImmediate() {
-		return false;
+		return true;
+	}
+
+	@Override
+	public void run() {
+		while (running.get()) {
+			try {
+				ConcurrentMessage concurrentMessage = messageQueue.take();
+				if(concurrentMessage.getChannel() == null) {
+					return;
+				}
+				messageHandler.onMessageReceived(concurrentMessage.getChannel(), concurrentMessage.getMessage());
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void dispose() {
+		running.set(false);
+		try {
+			//Use null to signal thread to stop
+			messageQueue.put(new ConcurrentMessage(null, null));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }

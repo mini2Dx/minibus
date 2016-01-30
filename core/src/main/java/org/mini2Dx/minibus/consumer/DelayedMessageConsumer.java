@@ -38,7 +38,7 @@ import org.mini2Dx.minibus.channel.ChannelSubscription;
 /**
  * Consumers {@link Message}s after a certain amount of time has elapsed
  */
-public class DelayedMessageConsumer extends BaseMessageConsumer implements MessageConsumer {
+public class DelayedMessageConsumer extends BaseMessageConsumer {
 	private final float delay;
 
 	private float timer;

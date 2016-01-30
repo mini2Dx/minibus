@@ -39,7 +39,7 @@ import org.mini2Dx.minibus.MessageHandler;
  * <a href="https://en.wikipedia.org/wiki/Observer_pattern">Observer pattern</a>
  * through the {@link MessageBus}
  */
-public class ImmediateMessageConsumer extends BaseMessageConsumer implements MessageConsumer {
+public class ImmediateMessageConsumer extends BaseMessageConsumer {
 	
 	public ImmediateMessageConsumer(MessageBus messageBus, MessageHandler messageHandler) {
 		super(messageBus, messageHandler);

@@ -29,14 +29,14 @@
  */
 package org.mini2Dx.minibus.consumer;
 
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageConsumer;
 import org.mini2Dx.minibus.dummy.DummyMessage;
 import org.mini2Dx.minibus.dummy.DummyMessageHandler;
-
-import junit.framework.Assert;
 
 /**
  * Unit tests for {@link ImmediateMessageConsumer}
@@ -48,6 +48,11 @@ public class ImmediateMessageConsumerTest {
 	private final MessageBus messageBus = new MessageBus(10);
 	private final DummyMessageHandler messageHandler = new DummyMessageHandler();
 	private final MessageConsumer consumer = messageBus.createImmediateConsumer(messageHandler);
+	
+	@After
+	public void teardown() {
+		consumer.dispose();
+	}
 	
 	@Test
 	public void testAfterInitialisation() {

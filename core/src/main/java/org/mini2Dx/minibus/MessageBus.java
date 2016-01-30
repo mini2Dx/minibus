@@ -36,6 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mini2Dx.minibus.channel.Channel;
 import org.mini2Dx.minibus.channel.ChannelSubscription;
+import org.mini2Dx.minibus.consumer.ConcurrentMessageConsumer;
 import org.mini2Dx.minibus.consumer.DelayedMessageConsumer;
 import org.mini2Dx.minibus.consumer.ImmediateMessageConsumer;
 import org.mini2Dx.minibus.consumer.OnUpdateMessageConsumer;
@@ -76,7 +77,8 @@ public class MessageBus {
 	 * Updates all {@link MessageConsumer}s. To update consumers individually,
 	 * call {@link MessageConsumer#update(float)}.
 	 * 
-	 * @param delta (in seconds) The timestep or amount of time that has elapsed
+	 * @param delta
+	 *            (in seconds) The timestep or amount of time that has elapsed
 	 *            since the last frame
 	 */
 	public void updateConsumers(float delta) {
@@ -134,6 +136,22 @@ public class MessageBus {
 	}
 
 	/**
+	 * Creates a {@link ConcurrentMessageConsumer} that processes messages on
+	 * its own {@link Thread}. The consumer/thread can be stopped by calling
+	 * {@link MessageConsumer#dispose()}
+	 * 
+	 * @param messageHandler
+	 *            The {@link MessageHandler} for processing messages received by
+	 *            the {@link MessageConsumer}
+	 * @return A new {@link ConcurrentMessageConsumer} running on its own thread
+	 */
+	public MessageConsumer createConcurrentConsumer(MessageHandler messageHandler) {
+		MessageConsumer result = new ConcurrentMessageConsumer(this, messageHandler);
+		consumers.add(result);
+		return result;
+	}
+
+	/**
 	 * Publishes a {@link Message} to this {@link MessageBus}
 	 * 
 	 * @param channel
@@ -149,10 +167,12 @@ public class MessageBus {
 		}
 		channels.get(channel).publish(message);
 	}
-	
+
 	/**
 	 * Publishes a {@link Message} to the default channel
-	 * @param message The {@link Message} to be published
+	 * 
+	 * @param message
+	 *            The {@link Message} to be published
 	 */
 	public void publish(Message message) {
 		publish(Channel.DEFAULT_CHANNEL, message);
