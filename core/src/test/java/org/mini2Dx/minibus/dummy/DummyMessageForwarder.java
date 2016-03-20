@@ -47,6 +47,10 @@ public class DummyMessageForwarder extends MessageForwarder {
 	public DummyMessageForwarder(String leftChannel, String rightChannel) {
 		super(leftChannel, rightChannel);
 	}
+	
+	public DummyMessageForwarder(String [] leftChannels, String [] rightChannels) {
+		super(leftChannels, rightChannels);
+	}
 
 	@Override
 	public boolean forward(Message message) {

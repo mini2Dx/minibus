@@ -29,17 +29,20 @@
  */
 package org.mini2Dx.minibus.handler;
 
+
 import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageConsumer;
 import org.mini2Dx.minibus.MessageHandler;
+import org.mini2Dx.minibus.channel.Channel;
 
 /**
  * Common class for implementing a {@link MessageHandler} that receives
- * {@link Message}s on one {@link Channel} and forwards them to another.
+ * {@link Message}s on one or more {@link Channel}s and forwards them to one or
+ * more {@link Channel}s.
  */
 public abstract class MessageForwarder implements MessageHandler {
-	private final String leftChannel, rightChannel;
+	private final String[] leftChannels, rightChannels;
 	private MessageBus messageBus;
 
 	/**
@@ -51,14 +54,28 @@ public abstract class MessageForwarder implements MessageHandler {
 	 *            The {@link Channel} name to forward {@link Message}s to
 	 */
 	public MessageForwarder(String leftChannel, String rightChannel) {
-		this.leftChannel = leftChannel;
-		this.rightChannel = rightChannel;
+		this(new String[] { leftChannel }, new String[] { rightChannel });
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param leftChannels
+	 *            The {@link Channel} names to receive {@link Message}s from
+	 * @param rightChannels
+	 *            The {@link Channel} names to forward {@link Message}s to
+	 */
+	public MessageForwarder(String[] leftChannels, String[] rightChannels) {
+		this.leftChannels = leftChannels;
+		this.rightChannels = rightChannels;
 	}
 
 	@Override
 	public void afterInitialisation(MessageBus messageBus, MessageConsumer consumer) {
 		this.messageBus = messageBus;
-		consumer.subscribe(leftChannel);
+		for (String channel : leftChannels) {
+			consumer.subscribe(channel);
+		}
 	}
 
 	@Override
@@ -66,7 +83,9 @@ public abstract class MessageForwarder implements MessageHandler {
 		if (!forward(message)) {
 			return;
 		}
-		messageBus.publish(rightChannel, message);
+		for (String forwardChannel : rightChannels) {
+			messageBus.publish(forwardChannel, message);
+		}
 	}
 
 	/**

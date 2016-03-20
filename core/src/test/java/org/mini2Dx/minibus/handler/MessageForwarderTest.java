@@ -44,18 +44,21 @@ import org.mini2Dx.minibus.dummy.DummyMessageHandler;
  * Unit tests for {@link MessageForwarder}
  */
 public class MessageForwarderTest {
-	private static final String LEFT_CHANNEL = "channel1";
-	private static final String RIGHT_CHANNEL = "channel2";
+	private static final String LEFT_CHANNEL_1 = "channel1";
+	private static final String LEFT_CHANNEL_2 = "channel2";
+	private static final String RIGHT_CHANNEL_1 = "channel3";
+	private static final String RIGHT_CHANNEL_2 = "channel4";
 	
 	private final MessageBus messageBus = new MessageBus(10);
-	private final DummyMessageForwarder messageForwarder = new DummyMessageForwarder(LEFT_CHANNEL, RIGHT_CHANNEL);
 	private final DummyMessageHandler messageHandler = new DummyMessageHandler();
-	private final MessageConsumer forwardingConsumer = messageBus.createImmediateConsumer(messageForwarder);
 	private final MessageConsumer receivingConsumer = messageBus.createImmediateConsumer(messageHandler);
+	
+	private MessageConsumer forwardingConsumer;
 	
 	@Before
 	public void setUp() {
-		receivingConsumer.subscribe(RIGHT_CHANNEL);
+		receivingConsumer.subscribe(RIGHT_CHANNEL_1);
+		receivingConsumer.subscribe(RIGHT_CHANNEL_2);
 	}
 	
 	@After
@@ -64,22 +67,74 @@ public class MessageForwarderTest {
 	}
 	
 	@Test
-	public void testAllowMessages() {
+	public void testAllowMessagesSingleChannel() {
+		DummyMessageForwarder messageForwarder = new DummyMessageForwarder(LEFT_CHANNEL_1, RIGHT_CHANNEL_1);
 		messageForwarder.setForwardMessages(true);
-		messageBus.publish(LEFT_CHANNEL, new DummyMessage(202));
+		forwardingConsumer = messageBus.createImmediateConsumer(messageForwarder);
+		
+		messageBus.publish(LEFT_CHANNEL_1, new DummyMessage(202));
 		Assert.assertEquals(1, messageForwarder.getMessagesReceived().size());
 		Assert.assertEquals(1, messageForwarder.getMessagesSent().size());
-		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL).size());
-		Assert.assertEquals(1, messageHandler.getMessagesReceived(RIGHT_CHANNEL).size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL_1).size());
+		Assert.assertEquals(1, messageHandler.getMessagesReceived(RIGHT_CHANNEL_1).size());
 	}
 	
 	@Test
-	public void testDropMessages() {
+	public void testDropMessagesSingleChannel() {
+		DummyMessageForwarder messageForwarder = new DummyMessageForwarder(LEFT_CHANNEL_1, RIGHT_CHANNEL_1);
 		messageForwarder.setForwardMessages(false);
-		messageBus.publish(LEFT_CHANNEL, new DummyMessage(202));
+		forwardingConsumer = messageBus.createImmediateConsumer(messageForwarder);
+		
+		messageBus.publish(LEFT_CHANNEL_1, new DummyMessage(202));
 		Assert.assertEquals(1, messageForwarder.getMessagesReceived().size());
 		Assert.assertEquals(0, messageForwarder.getMessagesSent().size());
-		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL).size());
-		Assert.assertEquals(0, messageHandler.getMessagesReceived(RIGHT_CHANNEL).size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL_1).size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(RIGHT_CHANNEL_1).size());
+	}
+	
+	@Test
+	public void testAllowMessagesMultiChannel() {
+		DummyMessageForwarder messageForwarder = new DummyMessageForwarder(new String [] { LEFT_CHANNEL_1, LEFT_CHANNEL_2 }, new String [] { RIGHT_CHANNEL_1, RIGHT_CHANNEL_2 });
+		messageForwarder.setForwardMessages(true);
+		forwardingConsumer = messageBus.createImmediateConsumer(messageForwarder);
+		
+		messageBus.publish(LEFT_CHANNEL_1, new DummyMessage(202));
+		Assert.assertEquals(1, messageForwarder.getMessagesReceived().size());
+		Assert.assertEquals(1, messageForwarder.getMessagesSent().size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL_1).size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL_2).size());
+		Assert.assertEquals(1, messageHandler.getMessagesReceived(RIGHT_CHANNEL_1).size());
+		Assert.assertEquals(1, messageHandler.getMessagesReceived(RIGHT_CHANNEL_2).size());
+		
+		messageBus.publish(LEFT_CHANNEL_2, new DummyMessage(202));
+		Assert.assertEquals(2, messageForwarder.getMessagesReceived().size());
+		Assert.assertEquals(2, messageForwarder.getMessagesSent().size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL_1).size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL_2).size());
+		Assert.assertEquals(2, messageHandler.getMessagesReceived(RIGHT_CHANNEL_1).size());
+		Assert.assertEquals(2, messageHandler.getMessagesReceived(RIGHT_CHANNEL_2).size());
+	}
+	
+	@Test
+	public void testDropMessagesMultiChannel() {
+		DummyMessageForwarder messageForwarder = new DummyMessageForwarder(new String [] { LEFT_CHANNEL_1, LEFT_CHANNEL_2 }, new String [] { RIGHT_CHANNEL_1, RIGHT_CHANNEL_2 });
+		messageForwarder.setForwardMessages(false);
+		forwardingConsumer = messageBus.createImmediateConsumer(messageForwarder);
+		
+		messageBus.publish(LEFT_CHANNEL_1, new DummyMessage(202));
+		Assert.assertEquals(1, messageForwarder.getMessagesReceived().size());
+		Assert.assertEquals(0, messageForwarder.getMessagesSent().size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL_1).size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL_2).size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(RIGHT_CHANNEL_1).size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(RIGHT_CHANNEL_2).size());
+		
+		messageBus.publish(LEFT_CHANNEL_2, new DummyMessage(202));
+		Assert.assertEquals(2, messageForwarder.getMessagesReceived().size());
+		Assert.assertEquals(0, messageForwarder.getMessagesSent().size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL_1).size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL_2).size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(RIGHT_CHANNEL_1).size());
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(RIGHT_CHANNEL_2).size());
 	}
 }
