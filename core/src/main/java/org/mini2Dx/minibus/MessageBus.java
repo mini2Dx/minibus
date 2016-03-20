@@ -154,6 +154,23 @@ public class MessageBus {
 	/**
 	 * Publishes a {@link Message} to this {@link MessageBus}
 	 * 
+	 * @param message
+	 *            The {@link Message} to be published
+	 * @param channels
+	 *            The message channels to publish on
+	 */
+	public void publish(Message message, String... channels) {
+		for (String channel : channels) {
+			if (!this.channels.containsKey(channel)) {
+				return;
+			}
+			this.channels.get(channel).publish(message);
+		}
+	}
+
+	/**
+	 * Publishes a {@link Message} to this {@link MessageBus}
+	 * 
 	 * @param channel
 	 *            The message channel to publish on. Only
 	 *            {@link MessageConsumer}s subscribed to the channel will
