@@ -27,30 +27,21 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.mini2Dx.minibus;
+package org.mini2Dx.minibus.handler;
+
+import org.mini2Dx.minibus.Message;
 
 /**
- * Common interface for {@link Message} processing implementations
+ * A default implementation of {@link MessageForwarder} to forwards all messages
  */
-public interface MessageHandler {
+public class AllowAllMessageForwarder extends MessageForwarder {
 
-	/**
-	 * Called after the {@link MessageHandler} has been connected to a
-	 * {@link MessageConsumer}
-	 * 
-	 * @param messageBus The {@link MessageBus} that this handler was initialised on
-	 * @param consumer
-	 *            The {@link MessageConsumer} that this handler was connected to
-	 */
-	public void afterInitialisation(MessageBus messageBus, MessageConsumer consumer);
+	public AllowAllMessageForwarder(String leftChannel, String rightChannel) {
+		super(leftChannel, rightChannel);
+	}
 
-	/**
-	 * Called when a {@link Message} is received
-	 * 
-	 * @param channel
-	 *            The channel the {@link Message} was received on
-	 * @param message
-	 *            The {@link Message} that was received
-	 */
-	public void onMessageReceived(String channel, Message message);
+	@Override
+	public boolean forward(Message message) {
+		return true;
+	}
 }

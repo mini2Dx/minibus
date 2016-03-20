@@ -27,30 +27,54 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.mini2Dx.minibus;
+package org.mini2Dx.minibus.handler;
+
+import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageBus;
+import org.mini2Dx.minibus.MessageConsumer;
+import org.mini2Dx.minibus.MessageHandler;
 
 /**
- * Common interface for {@link Message} processing implementations
+ * Common class for implementing a {@link MessageHandler} that receives
+ * {@link Message}s on one {@link Channel} and forwards them to another.
  */
-public interface MessageHandler {
+public abstract class MessageForwarder implements MessageHandler {
+	private final String leftChannel, rightChannel;
+	private MessageBus messageBus;
 
 	/**
-	 * Called after the {@link MessageHandler} has been connected to a
-	 * {@link MessageConsumer}
+	 * Constructor
 	 * 
-	 * @param messageBus The {@link MessageBus} that this handler was initialised on
-	 * @param consumer
-	 *            The {@link MessageConsumer} that this handler was connected to
+	 * @param leftChannel
+	 *            The {@link Channel} name to receive {@link Message}s from
+	 * @param rightChannel
+	 *            The {@link Channel} name to forward {@link Message}s to
 	 */
-	public void afterInitialisation(MessageBus messageBus, MessageConsumer consumer);
+	public MessageForwarder(String leftChannel, String rightChannel) {
+		this.leftChannel = leftChannel;
+		this.rightChannel = rightChannel;
+	}
+
+	@Override
+	public void afterInitialisation(MessageBus messageBus, MessageConsumer consumer) {
+		this.messageBus = messageBus;
+		consumer.subscribe(leftChannel);
+	}
+
+	@Override
+	public void onMessageReceived(String channel, Message message) {
+		if (!forward(message)) {
+			return;
+		}
+		messageBus.publish(rightChannel, message);
+	}
 
 	/**
 	 * Called when a {@link Message} is received
 	 * 
-	 * @param channel
-	 *            The channel the {@link Message} was received on
 	 * @param message
 	 *            The {@link Message} that was received
+	 * @return True if the {@link Message} should be forwarded
 	 */
-	public void onMessageReceived(String channel, Message message);
+	public abstract boolean forward(Message message);
 }

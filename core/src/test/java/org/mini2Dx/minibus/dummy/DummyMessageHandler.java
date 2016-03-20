@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageConsumer;
 import org.mini2Dx.minibus.MessageHandler;
 
@@ -46,7 +47,7 @@ public class DummyMessageHandler implements MessageHandler {
 	private boolean afterInitialisationCalled = false;
 	
 	@Override
-	public void afterInitialisation(MessageConsumer consumer) {
+	public void afterInitialisation(MessageBus messageBus, MessageConsumer consumer) {
 		afterInitialisationCalled = true;
 	}
 	

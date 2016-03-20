@@ -27,30 +27,46 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.mini2Dx.minibus;
+package org.mini2Dx.minibus.dummy;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.handler.MessageForwarder;
 
 /**
- * Common interface for {@link Message} processing implementations
+ * A dummy {@link MessageForwarder} for unit tests
  */
-public interface MessageHandler {
+public class DummyMessageForwarder extends MessageForwarder {
+	private boolean forwardMessages = true;
+	
+	private final List<Message> messagesReceived = new ArrayList<Message>();
+	private final List<Message> messagesSent = new ArrayList<Message>();
 
-	/**
-	 * Called after the {@link MessageHandler} has been connected to a
-	 * {@link MessageConsumer}
-	 * 
-	 * @param messageBus The {@link MessageBus} that this handler was initialised on
-	 * @param consumer
-	 *            The {@link MessageConsumer} that this handler was connected to
-	 */
-	public void afterInitialisation(MessageBus messageBus, MessageConsumer consumer);
+	public DummyMessageForwarder(String leftChannel, String rightChannel) {
+		super(leftChannel, rightChannel);
+	}
 
-	/**
-	 * Called when a {@link Message} is received
-	 * 
-	 * @param channel
-	 *            The channel the {@link Message} was received on
-	 * @param message
-	 *            The {@link Message} that was received
-	 */
-	public void onMessageReceived(String channel, Message message);
+	@Override
+	public boolean forward(Message message) {
+		messagesReceived.add(message);
+		if(forwardMessages) {
+			messagesSent.add(message);
+		}
+		return forwardMessages;
+	}
+
+	public List<Message> getMessagesReceived() {
+		return messagesReceived;
+	}
+	
+	public List<Message> getMessagesSent() {
+		return messagesSent;
+	}
+	
+	public void setForwardMessages(boolean forwardMessages) {
+		this.forwardMessages = forwardMessages;
+	}
+
 }

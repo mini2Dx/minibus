@@ -51,12 +51,12 @@ public abstract class BaseMessageConsumer implements MessageConsumer {
 	public BaseMessageConsumer(MessageBus messageBus, MessageHandler messageHandler) {
 		this.messageBus = messageBus;
 		this.messageHandler = messageHandler;
-		afterInitialisation(this);
+		afterInitialisation(messageBus, this);
 	}
 	
 	@Override
-	public void afterInitialisation(MessageConsumer consumer) {
-		messageHandler.afterInitialisation(consumer);
+	public void afterInitialisation(MessageBus messageBus, MessageConsumer consumer) {
+		messageHandler.afterInitialisation(messageBus, consumer);
 	}
 	
 	@Override

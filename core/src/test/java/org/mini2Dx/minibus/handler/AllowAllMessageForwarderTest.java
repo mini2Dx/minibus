@@ -27,30 +27,45 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.mini2Dx.minibus;
+package org.mini2Dx.minibus.handler;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mini2Dx.minibus.MessageBus;
+import org.mini2Dx.minibus.MessageConsumer;
+import org.mini2Dx.minibus.dummy.DummyMessage;
+import org.mini2Dx.minibus.dummy.DummyMessageForwarder;
+import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 
 /**
- * Common interface for {@link Message} processing implementations
+ * Unit tests for {@link AllowAllMessageForwarder}
  */
-public interface MessageHandler {
-
-	/**
-	 * Called after the {@link MessageHandler} has been connected to a
-	 * {@link MessageConsumer}
-	 * 
-	 * @param messageBus The {@link MessageBus} that this handler was initialised on
-	 * @param consumer
-	 *            The {@link MessageConsumer} that this handler was connected to
-	 */
-	public void afterInitialisation(MessageBus messageBus, MessageConsumer consumer);
-
-	/**
-	 * Called when a {@link Message} is received
-	 * 
-	 * @param channel
-	 *            The channel the {@link Message} was received on
-	 * @param message
-	 *            The {@link Message} that was received
-	 */
-	public void onMessageReceived(String channel, Message message);
+public class AllowAllMessageForwarderTest {
+	private static final String LEFT_CHANNEL = "channel1";
+	private static final String RIGHT_CHANNEL = "channel2";
+	
+	private final MessageBus messageBus = new MessageBus(10);
+	private final MessageForwarder messageForwarder = new AllowAllMessageForwarder(LEFT_CHANNEL, RIGHT_CHANNEL);
+	private final DummyMessageHandler messageHandler = new DummyMessageHandler();
+	private final MessageConsumer forwardingConsumer = messageBus.createImmediateConsumer(messageForwarder);
+	private final MessageConsumer receivingConsumer = messageBus.createImmediateConsumer(messageHandler);
+	
+	@Before
+	public void setUp() {
+		receivingConsumer.subscribe(RIGHT_CHANNEL);
+	}
+	
+	@After
+	public void teardown() {
+		forwardingConsumer.dispose();
+	}
+	
+	@Test
+	public void testMessageForwarding() {
+		messageBus.publish(LEFT_CHANNEL, new DummyMessage(202));
+		Assert.assertEquals(0, messageHandler.getMessagesReceived(LEFT_CHANNEL).size());
+		Assert.assertEquals(1, messageHandler.getMessagesReceived(RIGHT_CHANNEL).size());
+	}
 }
