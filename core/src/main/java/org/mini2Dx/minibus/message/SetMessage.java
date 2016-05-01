@@ -35,29 +35,75 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.TransactionState;
 
 /**
  * A {@link Message} that also implements the {@link Set} interface, backed by a
  * {@link Set} instance
  */
-public class SetMessage<T> extends NotifyMessage implements Set<T> {
+public class SetMessage<T> extends TransactionMessage implements Set<T> {
 	private final String messageType;
 	private final Set<T> set;
 
 	/**
-	 * Constructs a new {@link SetMessage} backed by a {@link HashSet}
+	 * Constructs a {@link TransactionState#NOTIFY} {@link SetMessage} backed by a {@link HashSet}
 	 * @param messageType The message type
 	 */
 	public SetMessage(String messageType) {
 		this(messageType, new HashSet<T>());
 	}
+	
+	/**
+	 * Constructs a {@link SetMessage} with a new transaction id and backed by a {@link HashSet}
+	 * @param messageType The message type
+	 * @param transactionState The {@link TransactionState}
+	 */
+	public SetMessage(String messageType, TransactionState transactionState) {
+		this(messageType, new HashSet<T>());
+	}
+	
+	/**
+	 * Constructs a {@link SetMessage} backed by a {@link HashSet}
+	 * @param messageType The message type
+	 * @param transactionId The transaction id
+	 * @param transactionState The {@link TransactionState}
+	 */
+	public SetMessage(String messageType, int transactionId, TransactionState transactionState) {
+		this(messageType, new HashSet<T>());
+	}
 
 	/**
-	 * Constructs a new {@link SetMessage}
+	 * Constructs a {@link TransactionState#NOTIFY} {@link SetMessage}
 	 * @param messageType The message type
 	 * @param set The backing {@link Set} instance
 	 */
 	public SetMessage(String messageType, Set<T> set) {
+		super();
+		this.messageType = messageType;
+		this.set = set;
+	}
+	
+	/**
+	 * Constructs a {@link SetMessage} with a new transaction id
+	 * @param messageType The message type
+	 * @param transactionState The {@link TransactionState}
+	 * @param set The backing {@link Set} instance
+	 */
+	public SetMessage(String messageType, TransactionState transactionState, Set<T> set) {
+		super(transactionState);
+		this.messageType = messageType;
+		this.set = set;
+	}
+	
+	/**
+	 * Constructs a new {@link SetMessage}
+	 * @param messageType The message type
+	 * @param transactionId The transaction id
+	 * @param transactionState The {@link TransactionState}
+	 * @param set The backing {@link Set} instance
+	 */
+	public SetMessage(String messageType, int transactionId, TransactionState transactionState, Set<T> set) {
+		super(transactionId, transactionState);
 		this.messageType = messageType;
 		this.set = set;
 	}

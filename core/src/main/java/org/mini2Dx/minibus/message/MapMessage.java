@@ -35,29 +35,98 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.TransactionState;
 
 /**
  * A {@link Message} that also implements the {@link Map} interface, backed by a
  * {@link Map} instance.
  */
-public class MapMessage<K, V> extends NotifyMessage implements Map<K, V> {
+public class MapMessage<K, V> extends TransactionMessage implements Map<K, V> {
 	private final Map<K, V> hashMap;
 	private final String messageType;
 
 	/**
-	 * Constructs a new {@link MapMessage} backed by a {@link HashMap}
-	 * @param messageType The message type
+	 * Constructs a new {@link TransactionState#NOTIFY} {@link MapMessage}
+	 * backed by a {@link HashMap}
+	 * 
+	 * @param messageType
+	 *            The message type
 	 */
 	public MapMessage(String messageType) {
 		this(messageType, new HashMap<K, V>());
 	}
 
 	/**
-	 * Constructs a new {@link MapMessage}
-	 * @param messageType The message type
-	 * @param hashMap The backing {@link Map} instance
+	 * Constructs a new {@link MapMessage} with a new transaction id and backed
+	 * by {@link HashMap}
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param transactionState
+	 *            The {@link TransactionState}
+	 */
+	public MapMessage(String messageType, TransactionState transactionState) {
+		this(messageType, transactionState, new HashMap<K, V>());
+	}
+
+	/**
+	 * Constructs a new {@link MapMessage} backed by {@link HashMap}
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param transactionId
+	 *            The transaction id
+	 * @param transactionState
+	 *            The {@link TransactionState}
+	 */
+	public MapMessage(String messageType, int transactionId, TransactionState transactionState) {
+		this(messageType, transactionId, transactionState, new HashMap<K, V>());
+	}
+
+	/**
+	 * Constructs a new {@link TransactionState#NOTIFY} {@link MapMessage}
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param hashMap
+	 *            The backing {@link Map} instance
 	 */
 	public MapMessage(String messageType, Map<K, V> hashMap) {
+		super();
+		this.messageType = messageType;
+		this.hashMap = hashMap;
+	}
+
+	/**
+	 * Constructs a new {@link MapMessage}
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param transactionState
+	 *            The {@link TransactionState}
+	 * @param hashMap
+	 *            The backing {@link Map} instance
+	 */
+	public MapMessage(String messageType, TransactionState transactionState, Map<K, V> hashMap) {
+		super(transactionState);
+		this.messageType = messageType;
+		this.hashMap = hashMap;
+	}
+
+	/**
+	 * Constructs a new {@link MapMessage}
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param transactionId
+	 *            The transaction id
+	 * @param transactionState
+	 *            The {@link TransactionState}
+	 * @param hashMap
+	 *            The backing {@link Map} instance
+	 */
+	public MapMessage(String messageType, int transactionId, TransactionState transactionState, Map<K, V> hashMap) {
+		super(transactionId, transactionState);
 		this.messageType = messageType;
 		this.hashMap = hashMap;
 	}

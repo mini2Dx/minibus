@@ -35,14 +35,9 @@ import org.mini2Dx.minibus.TransactionState;
 /**
  * A base class for {@link Message}s with no transaction ({@link TransactionState#NOTIFY})
  */
-public abstract class NotifyMessage implements Message {
-	@Override
-	public int getTransactionId() {
-		return 0;
-	}
-
-	@Override
-	public TransactionState getTransactionState() {
-		return TransactionState.NOTIFY;
+public abstract class NotifyMessage extends TransactionMessage {
+	
+	public NotifyMessage() {
+		super(0, TransactionState.NOTIFY);
 	}
 }

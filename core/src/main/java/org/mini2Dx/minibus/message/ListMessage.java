@@ -35,28 +35,99 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.TransactionState;
+
 /**
- * A {@link NotifyMessage} that also implements the {@link List} message,
- * backed by a {@link List} instance
+ * A {@link Message} that also implements the {@link List} message, backed by a
+ * {@link List} instance
  */
-public class ListMessage<T> extends NotifyMessage implements List<T> {
+public class ListMessage<T> extends TransactionMessage implements List<T> {
 	private final String messageType;
 	private final List<T> list;
-	
+
 	/**
-	 * Constructs a new {@link ListMessage} backed by an {@link ArrayList}
-	 * @param messageType The message type
+	 * Constructs a {@link TransactionState#NOTIFY} {@link ListMessage}
+	 * backed by an {@link ArrayList}
+	 * 
+	 * @param messageType
+	 *            The message type
 	 */
 	public ListMessage(String messageType) {
 		this(messageType, new ArrayList<T>(1));
 	}
-	
+
 	/**
-	 * Constructs a new {@link ListMessage}
-	 * @param messageType The message type
-	 * @param list The backing {@link List} instance
+	 * Constructs a {@link ListMessage} with a new transaction id and backed
+	 * by an {@link ArrayList}
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param transactionState
+	 *            The {@link TransactionState}
+	 */
+	public ListMessage(String messageType, TransactionState transactionState) {
+		this(messageType, transactionState, new ArrayList<T>(1));
+	}
+
+	/**
+	 * Constructs a {@link ListMessage} backed by an {@link ArrayList}
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param transactionId
+	 *            The transaction id
+	 * @param transactionState
+	 *            The {@link TransactionState}
+	 */
+	public ListMessage(String messageType, int transactionId, TransactionState transactionState) {
+		this(messageType, transactionId, transactionState, new ArrayList<T>(1));
+	}
+
+	/**
+	 * Constructs a {@link TransactionState#NOTIFY} {@link ListMessage}
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param list
+	 *            The backing {@link List} instance
 	 */
 	public ListMessage(String messageType, List<T> list) {
+		super();
+		this.messageType = messageType;
+		this.list = list;
+	}
+
+	/**
+	 * Constructs a {@link ListMessage} with a new transaction id
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param transactionState
+	 *            The {@link TransactionState}
+	 * @param list
+	 *            The backing {@link List} instance
+	 */
+	public ListMessage(String messageType, TransactionState transactionState, List<T> list) {
+		super(transactionState);
+		this.messageType = messageType;
+		this.list = list;
+	}
+
+	/**
+	 * Constructs a {@link ListMessage}
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param transactionId
+	 *            The transaction id
+	 * @param transactionState
+	 *            The {@link TransactionState}
+	 * @param list
+	 *            The backing {@link List} instance
+	 */
+	public ListMessage(String messageType, int transactionId, TransactionState transactionState, List<T> list) {
+		super(transactionId, transactionState);
 		this.messageType = messageType;
 		this.list = list;
 	}
