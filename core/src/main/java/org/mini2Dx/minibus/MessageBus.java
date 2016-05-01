@@ -29,9 +29,12 @@
  */
 package org.mini2Dx.minibus;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mini2Dx.minibus.channel.Channel;
@@ -40,6 +43,9 @@ import org.mini2Dx.minibus.consumer.ConcurrentMessageConsumer;
 import org.mini2Dx.minibus.consumer.DelayedMessageConsumer;
 import org.mini2Dx.minibus.consumer.ImmediateMessageConsumer;
 import org.mini2Dx.minibus.consumer.OnUpdateMessageConsumer;
+import org.mini2Dx.minibus.exception.TransactionException;
+import org.mini2Dx.minibus.handler.MessageHandlerChain;
+import org.mini2Dx.minibus.handler.QueryMessageHandler;
 
 /**
  * A message bus to publishing {@link Message}s
@@ -48,11 +54,22 @@ public class MessageBus {
 	/**
 	 * The default pool size for subscriptions per channel
 	 */
-	public static final int DEFAULT_POOL_SIZE = 5;
+	public static final int DEFAULT_POOL_SIZE = 10;
+	/**
+	 * 60 seconds - the default timeout for queries
+	 */
+	public static final float DEFAULT_QUERY_TIMEOUT = 60f;
 
 	private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<String, Channel>();
 	private final List<MessageConsumer> consumers = new CopyOnWriteArrayList<MessageConsumer>();
+	private final Set<Integer> transactions = new ConcurrentSkipListSet<Integer>();
 	private final int subscriptionPoolSize;
+
+	private final List<QueryMessageHandler> queryMessageHandlers = new ArrayList<QueryMessageHandler>();
+	private final MessageHandlerChain immediateQueryHandlerChain = new MessageHandlerChain();
+	private final MessageConsumer immediateQueryMessageConsumer = createImmediateConsumer(immediateQueryHandlerChain);
+	private final MessageHandlerChain onUpdateQueryHandlerChain = new MessageHandlerChain();
+	private final MessageConsumer onUpdateQueryMessageConsumer = createOnUpdateConsumer(onUpdateQueryHandlerChain);
 
 	/**
 	 * Constructs a message bus with the {@link #DEFAULT_POOL_SIZE}
@@ -84,6 +101,15 @@ public class MessageBus {
 	public void updateConsumers(float delta) {
 		for (MessageConsumer consumer : consumers) {
 			consumer.update(delta);
+		}
+		for (int i = queryMessageHandlers.size() - 1; i >= 0; i--) {
+			QueryMessageHandler queryMessageHandler = queryMessageHandlers.get(i);
+			if (queryMessageHandler.isFinished()) {
+				queryMessageHandlers.remove(i);
+			} else if (queryMessageHandler.update(delta)) {
+				queryMessageHandler.onTimeout();
+				queryMessageHandlers.remove(i);
+			}
 		}
 	}
 
@@ -150,6 +176,27 @@ public class MessageBus {
 		consumers.add(result);
 		return result;
 	}
+	
+	private void validateTransaction(Message message) {
+		switch(message.getTransactionState()) {
+		case BEGIN:
+			transactions.add(message.getTransactionId());
+			break;
+		case CONTINUE:
+			if(!transactions.contains(message.getTransactionId())) {
+				throw new TransactionException(message);
+			}
+			break;
+		case END:
+			if(!transactions.remove(message.getTransactionId())) {
+				throw new TransactionException(message);
+			}
+			break;
+		case NOTIFY:
+		default:
+			break;
+		}
+	}
 
 	/**
 	 * Publishes a {@link Message} to this {@link MessageBus}
@@ -160,9 +207,10 @@ public class MessageBus {
 	 *            The message channels to publish on
 	 */
 	public void publish(Message message, String... channels) {
+		validateTransaction(message);
 		for (String channel : channels) {
 			if (!this.channels.containsKey(channel)) {
-				return;
+				continue;
 			}
 			this.channels.get(channel).publish(message);
 		}
@@ -182,6 +230,7 @@ public class MessageBus {
 		if (!channels.containsKey(channel)) {
 			return;
 		}
+		validateTransaction(message);
 		channels.get(channel).publish(message);
 	}
 
@@ -193,6 +242,72 @@ public class MessageBus {
 	 */
 	public void publish(Message message) {
 		publish(Channel.DEFAULT_CHANNEL, message);
+	}
+
+	/**
+	 * Sends a {@link Message} on a channel and calls a
+	 * {@link QueryMessageHandler} when a response is received on the next
+	 * {@link MessageConsumer#update(float)} call. The query will timeout after
+	 * {@link MessageBus#DEFAULT_QUERY_TIMEOUT}.
+	 * 
+	 * @param channel The channel to send the {@link Message} on
+	 * @param message The {@link Message} to send. Transaction state must be {@link TransactionState#BEGIN}
+	 * @param messageHandler The response handler
+	 */
+	public void query(String channel, Message message, QueryMessageHandler messageHandler) {
+		query(channel, message, messageHandler, DEFAULT_QUERY_TIMEOUT);
+	}
+
+	/**
+	 * Sends a {@link Message} on a channel and calls a
+	 * {@link QueryMessageHandler} immediately when a response is received. The
+	 * query will timeout after {@link MessageBus#DEFAULT_QUERY_TIMEOUT}.
+	 * 
+	 * @param channel The channel to send the {@link Message} on
+	 * @param message The {@link Message} to send. Transaction state must be {@link TransactionState#BEGIN}
+	 * @param messageHandler The response handler
+	 */
+	public void queryImmediate(String channel, Message message, QueryMessageHandler messageHandler) {
+		queryImmediate(channel, message, messageHandler, DEFAULT_QUERY_TIMEOUT);
+	}
+
+	/**
+	 * Sends a {@link Message} on a channel and calls a
+	 * {@link QueryMessageHandler} when a response is received on the next
+	 * {@link MessageConsumer#update(float)} call
+	 * 
+	 * @param channel The channel to send the {@link Message} on
+	 * @param message The {@link Message} to send. Transaction state must be {@link TransactionState#BEGIN}
+	 * @param messageHandler The response handler
+	 * @param timeout The amount of time in seconds to timeout after
+	 */
+	public void query(String channel, Message message, QueryMessageHandler messageHandler, float timeout) {
+		if (message.getTransactionState() != TransactionState.BEGIN) {
+			throw new RuntimeException(
+					"Must send a message with a BEGIN transaction state when calling MessageBus.query()");
+		}
+		messageHandler.initialise(channel, message, timeout, onUpdateQueryHandlerChain);
+		queryMessageHandlers.add(messageHandler);
+		publish(channel, message);
+	}
+
+	/**
+	 * Sends a {@link Message} on a channel and calls a
+	 * {@link QueryMessageHandler} immediately when a response is received
+	 * 
+	 * @param channel The channel to send the {@link Message} on
+	 * @param message The {@link Message} to send. Transaction state must be {@link TransactionState#BEGIN}
+	 * @param messageHandler The response handler
+	 * @param timeout The amount of time in seconds to timeout after
+	 */
+	public void queryImmediate(String channel, Message message, QueryMessageHandler messageHandler, float timeout) {
+		if (message.getTransactionState() != TransactionState.BEGIN) {
+			throw new RuntimeException(
+					"Must send a message with a BEGIN transaction state when calling MessageBus.queryImmediate()");
+		}
+		messageHandler.initialise(channel, message, timeout, immediateQueryHandlerChain);
+		queryMessageHandlers.add(messageHandler);
+		publish(channel, message);
 	}
 
 	/**
@@ -210,5 +325,14 @@ public class MessageBus {
 	 */
 	public void dispose(MessageConsumer messageConsumer) {
 		consumers.remove(messageConsumer);
+	}
+
+	/**
+	 * Returns the total open transactions in the {@link MessageBus}
+	 * 
+	 * @return
+	 */
+	public int getOpenTransactions() {
+		return transactions.size();
 	}
 }

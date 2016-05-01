@@ -27,27 +27,22 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.mini2Dx.minibus;
+package org.mini2Dx.minibus.message;
+
+import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.TransactionState;
 
 /**
- * Common interface for messages passed through the {@link MessageBus}
+ * A base class for {@link Message}s with no transaction ({@link TransactionState#NOTIFY})
  */
-public interface Message {
-	/**
-	 * Returns the string identifier of this {@link Message}
-	 * @return
-	 */
-	public String getMessageType();
-	
-	/**
-	 * Returns the transaction id of this {@link Message}
-	 * @return The transaction id or 0 if the {@link TransactionState} is set to {@link TransactionState#NOTIFY}
-	 */
-	public int getTransactionId();
-	
-	/**
-	 * Returns the {@link TransactionState} of this {@link Message}
-	 * @return The {@link TransactionState}
-	 */
-	public TransactionState getTransactionState();
+public abstract class NotifyMessage implements Message {
+	@Override
+	public int getTransactionId() {
+		return 0;
+	}
+
+	@Override
+	public TransactionState getTransactionState() {
+		return TransactionState.NOTIFY;
+	}
 }

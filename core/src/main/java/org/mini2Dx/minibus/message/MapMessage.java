@@ -40,7 +40,7 @@ import org.mini2Dx.minibus.Message;
  * A {@link Message} that also implements the {@link Map} interface, backed by a
  * {@link Map} instance.
  */
-public class MapMessage<K, V> implements Message, Map<K, V> {
+public class MapMessage<K, V> extends NotifyMessage implements Map<K, V> {
 	private final Map<K, V> hashMap;
 	private final String messageType;
 

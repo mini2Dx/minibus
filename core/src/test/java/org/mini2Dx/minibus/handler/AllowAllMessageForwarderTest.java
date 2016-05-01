@@ -36,7 +36,6 @@ import org.junit.Test;
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageConsumer;
 import org.mini2Dx.minibus.dummy.DummyMessage;
-import org.mini2Dx.minibus.dummy.DummyMessageForwarder;
 import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 
 /**

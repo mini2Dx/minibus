@@ -31,7 +31,6 @@ package org.mini2Dx.minibus.consumer;
 
 import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageBus;
-import org.mini2Dx.minibus.MessageConsumer;
 import org.mini2Dx.minibus.MessageHandler;
 import org.mini2Dx.minibus.channel.ChannelSubscription;
 

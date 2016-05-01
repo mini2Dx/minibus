@@ -27,27 +27,17 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.mini2Dx.minibus;
+package org.mini2Dx.minibus.exception;
+
+import org.mini2Dx.minibus.Message;
 
 /**
- * Common interface for messages passed through the {@link MessageBus}
+ *
  */
-public interface Message {
-	/**
-	 * Returns the string identifier of this {@link Message}
-	 * @return
-	 */
-	public String getMessageType();
-	
-	/**
-	 * Returns the transaction id of this {@link Message}
-	 * @return The transaction id or 0 if the {@link TransactionState} is set to {@link TransactionState#NOTIFY}
-	 */
-	public int getTransactionId();
-	
-	/**
-	 * Returns the {@link TransactionState} of this {@link Message}
-	 * @return The {@link TransactionState}
-	 */
-	public TransactionState getTransactionState();
+public class TransactionException extends RuntimeException {
+	private static final long serialVersionUID = -8616261509904672011L;
+
+	public TransactionException(Message message) {
+		super("No transaction exists for " + message.getTransactionState() + " message with transaction id " + message.getTransactionId());
+	}
 }

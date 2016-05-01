@@ -30,16 +30,28 @@
 package org.mini2Dx.minibus.dummy;
 
 import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.TransactionState;
+import org.mini2Dx.minibus.message.TransactionMessage;
 
 /**
  * A dummy {@link Message} for unit tests
  */
-public class DummyMessage implements Message {
+public class DummyMessage extends TransactionMessage {
 	public static final String MESSAGE_TYPE = "DUMMY";
 	
 	private final int value;
 
 	public DummyMessage(int value) {
+		this(TransactionState.NOTIFY, value);
+	}
+	
+	public DummyMessage(TransactionState transactionState, int value) {
+		super(transactionState);
+		this.value = value;
+	}
+	
+	public DummyMessage(int transactionId, TransactionState transactionState, int value) {
+		super(transactionId, transactionState);
 		this.value = value;
 	}
 	
@@ -73,5 +85,4 @@ public class DummyMessage implements Message {
 			return false;
 		return true;
 	}
-
 }

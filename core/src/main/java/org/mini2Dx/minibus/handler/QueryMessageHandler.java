@@ -27,31 +27,68 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.mini2Dx.minibus.consumer;
+package org.mini2Dx.minibus.handler;
 
 import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageBus;
-import org.mini2Dx.minibus.MessageHandler;
-import org.mini2Dx.minibus.channel.ChannelSubscription;
 
 /**
- * Consumes {@link Message}s when {@link #update(float)} is called
+ *
  */
-public class OnUpdateMessageConsumer extends BaseMessageConsumer {
+public abstract class QueryMessageHandler extends TransactionMessageHandler {
+	private String expectedChannel;
+	private MessageHandlerChain messageHandlerChain;
+	private float timer = 0f;
+	private float timeout = MessageBus.DEFAULT_QUERY_TIMEOUT;
+	private boolean finished = false;
+	private Message beginMessage;
 	
-	public OnUpdateMessageConsumer(MessageBus messageBus, MessageHandler messageHandler) {
-		super(messageBus, messageHandler);
-	}
+	public abstract void onMessageReceived(Message message);
+	
+	public abstract void onTimeout();
 
 	@Override
-	public void update(float delta) {
-		for(ChannelSubscription subscription : subscriptions.values()) {
-			subscription.flush();
+	public void onMessageReceived(String channel, Message message) {
+		if(expectedChannel == null) {
+			return;
+		}
+		if(!expectedChannel.equals(channel)) {
+			return;
+		}
+		if(message.getTransactionId() != beginMessage.getTransactionId()) {
+			return;
+		}
+		switch(message.getTransactionState()) {
+		case CONTINUE:
+		case END:
+			onMessageReceived(message);
+			messageHandlerChain.unsubscribe(expectedChannel);
+			messageHandlerChain.remove(this);
+			finished = true;
+			break;
+		case BEGIN:
+		case NOTIFY:
+		default:
+			break;
 		}
 	}
 
-	@Override
-	public boolean isImmediate() {
-		return false;
+	public void initialise(String expectedChannel, Message beginMessage, float timeout, MessageHandlerChain messageHandlerChain) {
+		this.beginMessage = beginMessage;
+		this.messageHandlerChain = messageHandlerChain;
+		this.timeout = timeout;
+		this.expectedChannel = expectedChannel;
+		
+		messageHandlerChain.add(this);
+		messageHandlerChain.subscribe(expectedChannel);
+	}
+	
+	public boolean update(float delta) {
+		timer += delta;
+		return timer >= timeout;
+	}
+	
+	public boolean isFinished() {
+		return finished;
 	}
 }

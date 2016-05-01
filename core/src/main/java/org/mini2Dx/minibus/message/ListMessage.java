@@ -35,13 +35,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.mini2Dx.minibus.Message;
-
 /**
- * A {@link Message} that also implements the {@link List} message,
+ * A {@link NotifyMessage} that also implements the {@link List} message,
  * backed by a {@link List} instance
  */
-public class ListMessage<T> implements Message, List<T> {
+public class ListMessage<T> extends NotifyMessage implements List<T> {
 	private final String messageType;
 	private final List<T> list;
 	
@@ -182,5 +180,4 @@ public class ListMessage<T> implements Message, List<T> {
 	public List<T> subList(int fromIndex, int toIndex) {
 		return list.subList(fromIndex, toIndex);
 	}
-
 }

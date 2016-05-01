@@ -30,24 +30,23 @@
 package org.mini2Dx.minibus;
 
 /**
- * Common interface for messages passed through the {@link MessageBus}
+ * Represents the transaction state for a {@link Message}
  */
-public interface Message {
+public enum TransactionState {
 	/**
-	 * Returns the string identifier of this {@link Message}
-	 * @return
+	 * A message sent with no response expected
 	 */
-	public String getMessageType();
-	
+	NOTIFY,
 	/**
-	 * Returns the transaction id of this {@link Message}
-	 * @return The transaction id or 0 if the {@link TransactionState} is set to {@link TransactionState#NOTIFY}
+	 * A message sent at the beginning of a transaction
 	 */
-	public int getTransactionId();
-	
+	BEGIN,
 	/**
-	 * Returns the {@link TransactionState} of this {@link Message}
-	 * @return The {@link TransactionState}
+	 * A message sent in the middle of a transaction
 	 */
-	public TransactionState getTransactionState();
+	CONTINUE,
+	/**
+	 * A message sent ending a transaction
+	 */
+	END
 }

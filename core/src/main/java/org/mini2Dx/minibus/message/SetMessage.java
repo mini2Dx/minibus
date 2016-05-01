@@ -40,7 +40,7 @@ import org.mini2Dx.minibus.Message;
  * A {@link Message} that also implements the {@link Set} interface, backed by a
  * {@link Set} instance
  */
-public class SetMessage<T> implements Message, Set<T> {
+public class SetMessage<T> extends NotifyMessage implements Set<T> {
 	private final String messageType;
 	private final Set<T> set;
 

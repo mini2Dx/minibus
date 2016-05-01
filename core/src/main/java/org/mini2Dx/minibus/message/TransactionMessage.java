@@ -30,6 +30,7 @@
 package org.mini2Dx.minibus.message;
 
 import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.TransactionState;
 import org.mini2Dx.minibus.util.TransactionIdGenerator;
 
 /**
@@ -39,28 +40,59 @@ import org.mini2Dx.minibus.util.TransactionIdGenerator;
  * A transaction ids are generated using {@link TransactionIdGenerator}.
  */
 public abstract class TransactionMessage implements Message {
+	private final TransactionState transactionState;
 	private final int transactionId;
-	
+
 	/**
-	 * Constructs a {@link TransactionMessage} with a new transaction id
+	 * Constructs a {@link TransactionState#NOTIFY} {@link TransactionMessage}
+	 * with a new transaction id
 	 */
 	public TransactionMessage() {
 		this(TransactionIdGenerator.getNextId());
 	}
-	
+
 	/**
-	 * Constructs a {@link TransactionMessage} with an existing transaction id
-	 * @param transactionId The transaction id
+	 * Constructs a {@link TransactionState#NOTIFY} {@link TransactionMessage}
+	 * with a specific transaction id
+	 * 
+	 * @param transactionId
 	 */
 	public TransactionMessage(int transactionId) {
-		this.transactionId = transactionId;
+		this(transactionId, TransactionState.NOTIFY);
 	}
 
 	/**
-	 * The transaction identifier
-	 * @return
+	 * Constructs a {@link TransactionMessage} with a specific
+	 * {@link TransactionState} and a new transaction id
+	 * 
+	 * @param transactionState
 	 */
+	public TransactionMessage(TransactionState transactionState) {
+		this(TransactionIdGenerator.getNextId(), transactionState);
+	}
+
+	/**
+	 * Constructs a {@link TransactionMessage} with an existing transaction id
+	 * and {@link TransactionState}
+	 * 
+	 * @param transactionId
+	 *            The transaction id
+	 * @param transactionState
+	 *            The {@link TransactionState}
+	 * 
+	 */
+	public TransactionMessage(int transactionId, TransactionState transactionState) {
+		this.transactionId = transactionId;
+		this.transactionState = transactionState;
+	}
+
+	@Override
 	public int getTransactionId() {
 		return transactionId;
+	}
+
+	@Override
+	public TransactionState getTransactionState() {
+		return transactionState;
 	}
 }

@@ -47,26 +47,26 @@ public abstract class BaseMessageConsumer implements MessageConsumer {
 
 	protected final MessageBus messageBus;
 	protected final MessageHandler messageHandler;
-	
+
 	public BaseMessageConsumer(MessageBus messageBus, MessageHandler messageHandler) {
 		this.messageBus = messageBus;
 		this.messageHandler = messageHandler;
 		afterInitialisation(messageBus, this);
 	}
-	
+
 	@Override
 	public void afterInitialisation(MessageBus messageBus, MessageConsumer consumer) {
 		messageHandler.afterInitialisation(messageBus, consumer);
 	}
-	
+
 	@Override
 	public void onMessageReceived(String channel, Message message) {
 		messageHandler.onMessageReceived(channel, message);
 	}
-	
+
 	@Override
 	public void subscribe(String channel) {
-		if(subscriptions.containsKey(channel)) {
+		if (subscriptions.containsKey(channel)) {
 			return;
 		}
 		subscriptions.put(channel, messageBus.subscribe(this, channel));
@@ -75,12 +75,12 @@ public abstract class BaseMessageConsumer implements MessageConsumer {
 	@Override
 	public void unsubscribe(String channel) {
 		ChannelSubscription subscription = subscriptions.remove(channel);
-		if(subscription == null) {
+		if (subscription == null) {
 			return;
 		}
 		subscription.release();
 	}
-	
+
 	@Override
 	public void subscribeToDefaultChannel() {
 		subscribe(Channel.DEFAULT_CHANNEL);
@@ -90,10 +90,10 @@ public abstract class BaseMessageConsumer implements MessageConsumer {
 	public void unsubscribeFromDefaultChannel() {
 		unsubscribe(Channel.DEFAULT_CHANNEL);
 	}
-	
+
 	@Override
 	public void dispose() {
-		for(ChannelSubscription subscription : subscriptions.values()) {
+		for (ChannelSubscription subscription : subscriptions.values()) {
 			subscription.release();
 		}
 		subscriptions.clear();
