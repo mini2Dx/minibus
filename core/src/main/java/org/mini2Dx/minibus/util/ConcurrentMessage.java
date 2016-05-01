@@ -30,9 +30,10 @@
 package org.mini2Dx.minibus.util;
 
 import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.consumer.ConcurrentMessageConsumer;
 
 /**
- *
+ * A message wrapper for {@link ConcurrentMessageConsumer}
  */
 public class ConcurrentMessage {
 	private final String channel;
