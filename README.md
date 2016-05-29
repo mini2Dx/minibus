@@ -15,7 +15,7 @@ The main objective of minibus is to provide a lightweight message bus library op
 
 ## License
 
-The project is licensed under the BSD 3-Clause License.
+The project is licensed under the MIT License.
 
 ## Contributing
 
