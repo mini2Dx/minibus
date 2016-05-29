@@ -39,7 +39,7 @@ import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
 public class MessageBus {
 	final List<MessageExchange> exchangers = new CopyOnWriteArrayList<MessageExchange>();
 	final MessageTransmissionPool transmissionPool = new MessageTransmissionPool();
-	
+
 	private final MessageExchange anonymousExchange;
 
 	/**
@@ -86,8 +86,7 @@ public class MessageBus {
 	 *            The {@link MessageHandler} for processing messages received by
 	 *            the {@link MessageExchange}
 	 * @param interval
-	 *            The amount of time to wait (in seconds) before processing
-	 *            {@link Message}s
+	 *            The interval between processing {@link Message}s (in seconds)
 	 * @return A new {@link IntervalMessageExchange}
 	 */
 	public MessageExchange createIntervalExchange(MessageHandler messageHandler, float interval) {
@@ -149,7 +148,7 @@ public class MessageBus {
 	 *            The {@link Message} to broadcast
 	 */
 	public void broadcast(MessageExchange messageExchange, Message message) {
-		if(exchangers.size() == 0) {
+		if (exchangers.size() == 0) {
 			return;
 		}
 		MessageTransmission messageTransmission = transmissionPool.allocate();
@@ -158,7 +157,7 @@ public class MessageBus {
 
 		for (int i = exchangers.size() - 1; i >= 0; i--) {
 			MessageExchange exchange = exchangers.get(i);
-			if(exchange.getId() == messageExchange.getId()) {
+			if (exchange.getId() == messageExchange.getId()) {
 				continue;
 			}
 			messageTransmission.allocate();
@@ -177,7 +176,7 @@ public class MessageBus {
 	 *            The {@link Message} that is sent
 	 */
 	public void send(MessageExchange source, MessageExchange destination, Message message) {
-		if(source == null) {
+		if (source == null) {
 			throw new RuntimeException("source cannot be null, use sendTo() instead");
 		}
 		MessageTransmission messageTransmission = transmissionPool.allocate();

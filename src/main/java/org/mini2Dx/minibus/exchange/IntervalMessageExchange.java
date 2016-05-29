@@ -23,18 +23,25 @@
  */
 package org.mini2Dx.minibus.exchange;
 
+import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageExchange;
 import org.mini2Dx.minibus.MessageHandler;
 
 /**
- *
+ * Processes {@link Message}s at a regular interval
  */
 public class IntervalMessageExchange extends MessageExchange {
 	private final float interval;
 
 	private float timer;
 	
+	/**
+	 * Constructor
+	 * @param interval The interval between processing {@link Message}s (in seconds)
+	 * @param messageBus The {@link MessageBus} that created this {@link IntervalMessageExchange}
+	 * @param messageHandler The {@link MessageHandler} to send messages to
+	 */
 	public IntervalMessageExchange(float interval, MessageBus messageBus, MessageHandler messageHandler) {
 		super(messageBus, messageHandler);
 		this.interval = interval;
