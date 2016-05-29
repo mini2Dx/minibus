@@ -21,104 +21,103 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.mini2Dx.minibus.message;
+package org.mini2Dx.minibus.messagedata;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.mini2Dx.minibus.MessageData;
 
 /**
- * A {@link MessageData} that also implements the {@link Set} interface, backed by a
- * {@link Set} instance
+ * A {@link MessageData} that also implements the {@link Map} interface, backed by a
+ * {@link Map} instance.
  */
-public class SetMessage<T> implements Set<T>, MessageData {
+public class MapMessageData<K, V> implements Map<K, V>, MessageData {
+	private final Map<K, V> hashMap;
 	private final String messageType;
-	private final Set<T> set;
 
 	/**
-	 * Constructs a {@link SetMessage} backed by a {@link HashSet}
-	 * @param messageType The message type
+	 * Constructs a new {@link MapMessageData} backed by a {@link HashMap}
+	 * 
+	 * @param messageType
+	 *            The message type
 	 */
-	public SetMessage(String messageType) {
-		this(messageType, new HashSet<T>());
+	public MapMessageData(String messageType) {
+		this(messageType, new HashMap<K, V>());
 	}
 
 	/**
-	 * Constructs a {@link SetMessage}
-	 * @param messageType The message type
-	 * @param set The backing {@link Set} instance
+	 * Constructs a new {@link MapMessageData}
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param hashMap
+	 *            The backing {@link Map} instance
 	 */
-	public SetMessage(String messageType, Set<T> set) {
-		super();
+	public MapMessageData(String messageType, Map<K, V> hashMap) {
 		this.messageType = messageType;
-		this.set = set;
+		this.hashMap = hashMap;
 	}
 
 	@Override
 	public int size() {
-		return set.size();
+		return hashMap.size();
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return set.isEmpty();
+		return hashMap.isEmpty();
 	}
 
 	@Override
-	public boolean contains(Object o) {
-		return set.contains(o);
+	public boolean containsKey(Object key) {
+		return hashMap.containsKey(key);
 	}
 
 	@Override
-	public Iterator<T> iterator() {
-		return set.iterator();
+	public boolean containsValue(Object value) {
+		return hashMap.containsValue(value);
 	}
 
 	@Override
-	public Object[] toArray() {
-		return set.toArray();
+	public V get(Object key) {
+		return hashMap.get(key);
 	}
 
 	@Override
-	public <T> T[] toArray(T[] a) {
-		return set.toArray(a);
+	public V put(K key, V value) {
+		return hashMap.put(key, value);
 	}
 
 	@Override
-	public boolean add(T e) {
-		return set.add(e);
+	public V remove(Object key) {
+		return hashMap.remove(key);
 	}
 
 	@Override
-	public boolean remove(Object o) {
-		return set.remove(o);
-	}
-
-	@Override
-	public boolean containsAll(Collection<?> c) {
-		return set.containsAll(c);
-	}
-
-	@Override
-	public boolean addAll(Collection<? extends T> c) {
-		return set.addAll(c);
-	}
-
-	@Override
-	public boolean retainAll(Collection<?> c) {
-		return set.retainAll(c);
-	}
-
-	@Override
-	public boolean removeAll(Collection<?> c) {
-		return set.removeAll(c);
+	public void putAll(Map<? extends K, ? extends V> m) {
+		hashMap.putAll(m);
 	}
 
 	@Override
 	public void clear() {
-		set.clear();
+		hashMap.clear();
+	}
+
+	@Override
+	public Set<K> keySet() {
+		return hashMap.keySet();
+	}
+
+	@Override
+	public Collection<V> values() {
+		return hashMap.values();
+	}
+
+	@Override
+	public Set<java.util.Map.Entry<K, V>> entrySet() {
+		return hashMap.entrySet();
 	}
 }

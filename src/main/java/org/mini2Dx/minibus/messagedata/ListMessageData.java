@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.mini2Dx.minibus.message;
+package org.mini2Dx.minibus.messagedata;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,29 +35,29 @@ import org.mini2Dx.minibus.MessageData;
  * A {@link MessageData} that also implements the {@link List} message, backed by a
  * {@link List} instance
  */
-public class ListMessage<T> implements List<T>, MessageData {
+public class ListMessageData<T> implements List<T>, MessageData {
 	private final String messageType;
 	private final List<T> list;
 
 	/**
-	 * Constructs a {@link ListMessage} backed by an {@link ArrayList}
+	 * Constructs a {@link ListMessageData} backed by an {@link ArrayList}
 	 * 
 	 * @param messageType
 	 *            The message type
 	 */
-	public ListMessage(String messageType) {
+	public ListMessageData(String messageType) {
 		this(messageType, new ArrayList<T>(1));
 	}
 
 	/**
-	 * Constructs a {@link ListMessage}
+	 * Constructs a {@link ListMessageData}
 	 * 
 	 * @param messageType
 	 *            The message type
 	 * @param list
 	 *            The backing {@link List} instance
 	 */
-	public ListMessage(String messageType, List<T> list) {
+	public ListMessageData(String messageType, List<T> list) {
 		this.messageType = messageType;
 		this.list = list;
 	}

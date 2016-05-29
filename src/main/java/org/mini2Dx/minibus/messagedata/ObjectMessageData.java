@@ -21,14 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.mini2Dx.minibus.message;
+package org.mini2Dx.minibus.messagedata;
 
 import org.mini2Dx.minibus.MessageData;
 
 /**
  * A {@link MessageData} that stores an object
  */
-public class ObjectMessage<T> implements MessageData {
+public class ObjectMessageData<T> implements MessageData {
 	private final String messageType;
 	private final T obj;
 	
@@ -37,7 +37,7 @@ public class ObjectMessage<T> implements MessageData {
 	 * @param messageType The message type
 	 * @param obj The object instance
 	 */
-	public ObjectMessage(String messageType, T obj) {
+	public ObjectMessageData(String messageType, T obj) {
 		this.messageType = messageType;
 		this.obj = obj;
 	}
