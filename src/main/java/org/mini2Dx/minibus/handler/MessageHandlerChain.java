@@ -26,21 +26,21 @@ package org.mini2Dx.minibus.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageData;
 import org.mini2Dx.minibus.MessageExchange;
 import org.mini2Dx.minibus.MessageHandler;
 
 /**
  * A {@link MessageHandler} that allows multiple {@link MessageHandler}s to be
- * chained and receive the same {@link Message}s
+ * chained and receive the same {@link MessageData}s
  */
 public class MessageHandlerChain implements MessageHandler {
 	private final List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>(1);
 
 	@Override
-	public void onMessageReceived(MessageExchange source, MessageExchange receiver, Message message) {
+	public void onMessageReceived(String messageType, MessageExchange source, MessageExchange receiver, MessageData messageData) {
 		for(int i = messageHandlers.size() - 1; i >= 0; i--) {
-			messageHandlers.get(i).onMessageReceived(source, receiver, message);
+			messageHandlers.get(i).onMessageReceived(messageType, source, receiver, messageData);
 		}
 	}
 	

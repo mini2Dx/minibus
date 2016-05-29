@@ -28,7 +28,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageExchange;
-import org.mini2Dx.minibus.dummy.DummyMessage;
 import org.mini2Dx.minibus.dummy.DummyMessageForwarder;
 import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 
@@ -37,6 +36,8 @@ import org.mini2Dx.minibus.dummy.DummyMessageHandler;
  * Unit tests for {@link MessageForwarder}
  */
 public class MessageForwarderTest {
+	private static final String MESSAGE_TYPE = "message";
+	
 	private final MessageBus messageBus = new MessageBus();
 	private final DummyMessageHandler messageHandler = new DummyMessageHandler();
 	private final MessageExchange receivingExchange = messageBus.createImmediateExchange(messageHandler);
@@ -54,7 +55,7 @@ public class MessageForwarderTest {
 		messageForwarder.setForwardMessages(true);
 		forwardingExchange = messageBus.createImmediateExchange(messageForwarder);
 		
-		messageBus.sendTo(forwardingExchange, new DummyMessage(203));
+		messageBus.sendTo(forwardingExchange, MESSAGE_TYPE);
 		Assert.assertEquals(1, messageForwarder.getMessagesReceived().size());
 		Assert.assertEquals(1, messageForwarder.getMessagesSent().size());
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
@@ -67,7 +68,7 @@ public class MessageForwarderTest {
 		messageForwarder.setForwardMessages(false);
 		forwardingExchange = messageBus.createImmediateExchange(messageForwarder);
 		
-		messageBus.sendTo(forwardingExchange, new DummyMessage(203));
+		messageBus.sendTo(forwardingExchange, MESSAGE_TYPE);
 		Assert.assertEquals(1, messageForwarder.getMessagesReceived().size());
 		Assert.assertEquals(0, messageForwarder.getMessagesSent().size());
 		Assert.assertEquals(0, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());

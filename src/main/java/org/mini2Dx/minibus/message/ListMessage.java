@@ -29,13 +29,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageData;
 
 /**
- * A {@link Message} that also implements the {@link List} message, backed by a
+ * A {@link MessageData} that also implements the {@link List} message, backed by a
  * {@link List} instance
  */
-public class ListMessage<T> implements List<T>, Message {
+public class ListMessage<T> implements List<T>, MessageData {
 	private final String messageType;
 	private final List<T> list;
 
@@ -60,11 +60,6 @@ public class ListMessage<T> implements List<T>, Message {
 	public ListMessage(String messageType, List<T> list) {
 		this.messageType = messageType;
 		this.list = list;
-	}
-
-	@Override
-	public String getMessageType() {
-		return messageType;
 	}
 
 	@Override

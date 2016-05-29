@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageData;
 import org.mini2Dx.minibus.MessageExchange;
 import org.mini2Dx.minibus.MessageHandler;
 
@@ -36,19 +36,19 @@ import org.mini2Dx.minibus.MessageHandler;
  * A dummy {@link MessageHandler} for unit tests
  */
 public class DummyMessageHandler implements MessageHandler {
-	private final Map<Integer, List<Message>> messagesReceived = new HashMap<Integer, List<Message>>();
+	private final Map<Integer, List<String>> messagesReceived = new HashMap<Integer, List<String>>();
 	
 	@Override
-	public void onMessageReceived(MessageExchange source, MessageExchange receiver, Message message) {
+	public void onMessageReceived(String messageType, MessageExchange source, MessageExchange receiver, MessageData messageData) {
 		if(!messagesReceived.containsKey(source.getId())) {
-			messagesReceived.put(source.getId(), new CopyOnWriteArrayList<Message>());
+			messagesReceived.put(source.getId(), new CopyOnWriteArrayList<String>());
 		}
-		messagesReceived.get(source.getId()).add(message);
+		messagesReceived.get(source.getId()).add(messageType);
 	}
 
-	public List<Message> getMessagesReceived(int exchangeId) {
+	public List<String> getMessagesReceived(int exchangeId) {
 		if(!messagesReceived.containsKey(exchangeId)) {
-			messagesReceived.put(exchangeId, new CopyOnWriteArrayList<Message>());
+			messagesReceived.put(exchangeId, new CopyOnWriteArrayList<String>());
 		}
 		return messagesReceived.get(exchangeId);
 	}

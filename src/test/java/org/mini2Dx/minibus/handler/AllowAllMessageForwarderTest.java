@@ -28,13 +28,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageExchange;
-import org.mini2Dx.minibus.dummy.DummyMessage;
 import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 
 /**
  * Unit tests for {@link AllowAllMessageForwarder}
  */
 public class AllowAllMessageForwarderTest {
+	private static final String MESSAGE_TYPE = "message";
+	
 	private final MessageBus messageBus = new MessageBus();
 	private final DummyMessageHandler receivingMessageHandler = new DummyMessageHandler();
 	private final MessageExchange receivingExchange = messageBus.createImmediateExchange(receivingMessageHandler);
@@ -49,7 +50,7 @@ public class AllowAllMessageForwarderTest {
 	
 	@Test
 	public void testMessageForwarding() {
-		messageBus.sendTo(forwardingExchange, new DummyMessage(202));
+		messageBus.sendTo(forwardingExchange, MESSAGE_TYPE);
 		Assert.assertEquals(1, receivingMessageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
 	}
 }

@@ -23,13 +23,13 @@
  */
 package org.mini2Dx.minibus.handler;
 
-import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageData;
 import org.mini2Dx.minibus.MessageExchange;
 import org.mini2Dx.minibus.MessageHandler;
 
 /**
  * Common class for implementing a {@link MessageHandler} that receives
- * {@link Message}s and forwards them to one or more {@link MessageExchange}s.
+ * {@link MessageData}s and forwards them to one or more {@link MessageExchange}s.
  */
 public abstract class MessageForwarder implements MessageHandler {
 	private final MessageExchange[] receivers;
@@ -38,7 +38,7 @@ public abstract class MessageForwarder implements MessageHandler {
 	 * Constructor
 	 * 
 	 * @param receivers
-	 *            The {@link MessageExchange}s to forward {@link Message}s to
+	 *            The {@link MessageExchange}s to forward {@link MessageData}s to
 	 */
 	public MessageForwarder(MessageExchange... receivers) {
 		if (receivers.length == 0) {
@@ -49,21 +49,21 @@ public abstract class MessageForwarder implements MessageHandler {
 	}
 
 	@Override
-	public void onMessageReceived(MessageExchange source, MessageExchange receiver, Message message) {
-		if (!forward(message)) {
+	public void onMessageReceived(String messageType, MessageExchange source, MessageExchange receiver, MessageData messageData) {
+		if (!forward(messageData)) {
 			return;
 		}
 		for (MessageExchange exchanger : receivers) {
-			source.sendTo(exchanger, message);
+			source.sendTo(exchanger, messageType, messageData);
 		}
 	}
 
 	/**
-	 * Called when a {@link Message} is received
+	 * Called when a {@link MessageData} is received
 	 * 
-	 * @param message
-	 *            The {@link Message} that was received
-	 * @return True if the {@link Message} should be forwarded
+	 * @param messageData
+	 *            The {@link MessageData} that was received
+	 * @return True if the {@link MessageData} should be forwarded
 	 */
-	public abstract boolean forward(Message message);
+	public abstract boolean forward(MessageData messageData);
 }

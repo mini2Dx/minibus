@@ -28,13 +28,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageExchange;
-import org.mini2Dx.minibus.dummy.DummyMessage;
 import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 
 /**
  * Unit tests for {@link MessageHandlerChain}
  */
 public class MessageHandlerChainTest {
+	private static final String MESSAGE_TYPE = "message";
+	
 	private final MessageBus messageBus = new MessageBus();
 	private final MessageHandlerChain messageHandlerChain = new MessageHandlerChain();
 	private final MessageExchange messageExchange = messageBus.createImmediateExchange(messageHandlerChain);
@@ -50,7 +51,7 @@ public class MessageHandlerChainTest {
 		DummyMessageHandler dummyMessageHandler2 = new DummyMessageHandler();
 		
 		messageHandlerChain.add(dummyMessageHandler1);
-		messageBus.broadcast(new DummyMessage(7));
+		messageBus.broadcast(MESSAGE_TYPE);
 		
 		Assert.assertEquals(1, dummyMessageHandler1.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
 		
@@ -58,7 +59,7 @@ public class MessageHandlerChainTest {
 		Assert.assertEquals(1, dummyMessageHandler1.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
 		Assert.assertEquals(0, dummyMessageHandler2.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
 		
-		messageBus.broadcast(new DummyMessage(8));
+		messageBus.broadcast(MESSAGE_TYPE);
 		Assert.assertEquals(2, dummyMessageHandler1.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
 		Assert.assertEquals(1, dummyMessageHandler2.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
 	}

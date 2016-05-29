@@ -21,22 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.mini2Dx.minibus.message;
-
-import org.mini2Dx.minibus.Message;
+package org.mini2Dx.minibus;
 
 /**
- * A {@link Message} with no data
+ * Common interface for message data passed through the {@link MessageBus}
  */
-public class SimpleMessage implements Message {
-	private final String messageType;
-	
-	public SimpleMessage(String messageType) {
-		this.messageType = messageType;
-	}
-
-	@Override
-	public String getMessageType() {
-		return messageType;
-	}
+public interface MessageData {
 }

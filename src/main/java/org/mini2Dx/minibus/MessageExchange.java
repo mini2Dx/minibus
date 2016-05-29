@@ -31,7 +31,7 @@ import org.mini2Dx.minibus.transmission.MessageTransmission;
 import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
 
 /**
- * Sends and receives {@link Message}s - base class for implementations.
+ * Sends and receives {@link MessageData}s - base class for implementations.
  */
 public abstract class MessageExchange {
 	private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
@@ -45,12 +45,17 @@ public abstract class MessageExchange {
 
 	/**
 	 * Constructor
-	 * @param messageBus The {@link MessageBus} that this {@link MessageExchange} belongs to
-	 * @param messageHandler The {@link MessageHandler} to notify when {@link Message}s are received
+	 * 
+	 * @param messageBus
+	 *            The {@link MessageBus} that this {@link MessageExchange}
+	 *            belongs to
+	 * @param messageHandler
+	 *            The {@link MessageHandler} to notify when {@link MessageData}s
+	 *            are received
 	 */
 	public MessageExchange(MessageBus messageBus, MessageHandler messageHandler) {
 		id = ID_GENERATOR.incrementAndGet();
-		
+
 		this.messageBus = messageBus;
 		this.messageTransmissionPool = messageBus.transmissionPool;
 		this.messageHandler = messageHandler;
@@ -64,43 +69,69 @@ public abstract class MessageExchange {
 	 */
 	void queue(MessageTransmission messageTransmission) {
 		if (isImmediate()) {
-			messageHandler.onMessageReceived(messageTransmission.getSource(), this, messageTransmission.getMessage());
+			messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(),
+					this, messageTransmission.getMessage());
 		} else {
 			messageQueue.offer(messageTransmission);
 		}
 	}
 
 	/**
-	 * Broadcasts a {@link Message} from this {@link MessageExchange} to all
-	 * other {@link MessageExchange}s
+	 * Broadcasts a message from this {@link MessageExchange} to all other
+	 * {@link MessageExchange}s
 	 * 
-	 * @param message
-	 *            The {@link Message} to broadcast
+	 * @param messageData
+	 *            The {@link MessageData} to broadcast
 	 */
-	public void broadcast(Message message) {
-		messageBus.broadcast(this, message);
+	public void broadcast(String messageType) {
+		messageBus.broadcast(this, messageType);
 	}
 
 	/**
-	 * Sends a {@link Message} from this {@link MessageExchange} to another
+	 * Broadcasts a message with {@link MessageData} from this
+	 * {@link MessageExchange} to all other {@link MessageExchange}s
+	 * 
+	 * @param messageData
+	 *            The {@link MessageData} to broadcast
+	 */
+	public void broadcast(String messageType, MessageData messageData) {
+		messageBus.broadcast(this, messageType, messageData);
+	}
+
+	/**
+	 * Sends a message with from this {@link MessageExchange} to another
+	 * 
+	 * @param destination The {@link MessageExchange} to send the {@link MessageData} to
+	 * @param messageType The message type
+	 */
+	public void sendTo(MessageExchange destination, String messageType) {
+		messageBus.send(this, destination, messageType);
+	}
+
+	/**
+	 * Sends a message with {@link MessageData} from this
+	 * {@link MessageExchange} to another
 	 * 
 	 * @param destination
-	 *            The {@link MessageExchange} to send the {@link Message} to
-	 * @param message
-	 *            The {@link Message} to send
+	 *            The {@link MessageExchange} to send the {@link MessageData} to
+	 * @param messageType
+	 *            The message type
+	 * @param messageData
+	 *            The {@link MessageData} to send
 	 */
-	public void sendTo(MessageExchange destination, Message message) {
-		messageBus.send(this, destination, message);
+	public void sendTo(MessageExchange destination, String messageType, MessageData messageData) {
+		messageBus.send(this, destination, messageType, messageData);
 	}
 
 	/**
-	 * Flushes all {@link Message}s in the queue to
-	 * {@link MessageHandler#onMessageReceived(MessageExchange, Message)}
+	 * Flushes all {@link MessageData}s in the queue to
+	 * {@link MessageHandler#onMessageReceived(MessageExchange, MessageData)}
 	 */
 	protected void flush() {
 		while (!messageQueue.isEmpty()) {
 			MessageTransmission messageTransmission = messageQueue.poll();
-			messageHandler.onMessageReceived(messageTransmission.getSource(), this, messageTransmission.getMessage());
+			messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(),
+					this, messageTransmission.getMessage());
 			messageTransmission.release();
 		}
 	}
@@ -115,10 +146,10 @@ public abstract class MessageExchange {
 	public abstract void update(float delta);
 
 	/**
-	 * Returns if this consumer immediately processes {@link Message}s
+	 * Returns if this consumer immediately processes {@link MessageData}s
 	 * 
 	 * @return True if this {@link MessageExchange} should process
-	 *         {@link Message}s immediately as they are published
+	 *         {@link MessageData}s immediately as they are published
 	 */
 	public abstract boolean isImmediate();
 

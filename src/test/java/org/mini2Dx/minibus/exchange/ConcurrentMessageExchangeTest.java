@@ -26,17 +26,16 @@ package org.mini2Dx.minibus.exchange;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageExchange;
-import org.mini2Dx.minibus.dummy.DummyMessage;
 import org.mini2Dx.minibus.dummy.DummyMessageHandler;
-import org.mini2Dx.minibus.exchange.ConcurrentMessageExchange;
 
 /**
  * Unit tests for {@link ConcurrentMessageExchange}
  */
-public class ConcurrentMessageExchangeTest {	
+public class ConcurrentMessageExchangeTest {
+	private static final String MESSAGE_TYPE = "message";
+	
 	private final MessageBus messageBus = new MessageBus();
 	private final DummyMessageHandler messageHandler = new DummyMessageHandler();
 	private final MessageExchange exchange = messageBus.createConcurrentExchange(messageHandler);
@@ -48,40 +47,37 @@ public class ConcurrentMessageExchangeTest {
 	
 	@Test
 	public void testReceivesBroadcastMessages() {
-		Message message = new DummyMessage(1);
-		messageBus.broadcast(message);
+		messageBus.broadcast(MESSAGE_TYPE);
 		sleep();
-		Assert.assertEquals(true, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+		Assert.assertEquals(true, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
-		Assert.assertEquals(false, messageHandler.getMessagesReceived(exchange.getId()).contains(message));
+		Assert.assertEquals(false, messageHandler.getMessagesReceived(exchange.getId()).contains(MESSAGE_TYPE));
 		Assert.assertEquals(0, messageHandler.getMessagesReceived(exchange.getId()).size());
 	}
 	
 	@Test
 	public void testDoesNotReceiveOwnBroadcastMessages() {
-		Message message = new DummyMessage(2);
-		exchange.broadcast(message);
-		Assert.assertEquals(false, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+		exchange.broadcast(MESSAGE_TYPE);
+		Assert.assertEquals(false, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 		Assert.assertEquals(0, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
-		Assert.assertEquals(false, messageHandler.getMessagesReceived(exchange.getId()).contains(message));
+		Assert.assertEquals(false, messageHandler.getMessagesReceived(exchange.getId()).contains(MESSAGE_TYPE));
 		Assert.assertEquals(0, messageHandler.getMessagesReceived(exchange.getId()).size());
 	}
 	
 	@Test
 	public void testReceivesDirectMessages() {
-		Message message = new DummyMessage(3);
-		messageBus.sendTo(exchange, message);
+		messageBus.sendTo(exchange, MESSAGE_TYPE);
 		sleep();
-		Assert.assertEquals(true, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+		Assert.assertEquals(true, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
-		Assert.assertEquals(false, messageHandler.getMessagesReceived(exchange.getId()).contains(message));
+		Assert.assertEquals(false, messageHandler.getMessagesReceived(exchange.getId()).contains(MESSAGE_TYPE));
 		Assert.assertEquals(0, messageHandler.getMessagesReceived(exchange.getId()).size());
 		
-		messageBus.send(exchange, exchange, message);
+		messageBus.send(exchange, exchange, MESSAGE_TYPE);
 		sleep();
-		Assert.assertEquals(true, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+		Assert.assertEquals(true, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
-		Assert.assertEquals(true, messageHandler.getMessagesReceived(exchange.getId()).contains(message));
+		Assert.assertEquals(true, messageHandler.getMessagesReceived(exchange.getId()).contains(MESSAGE_TYPE));
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(exchange.getId()).size());
 	}
 	

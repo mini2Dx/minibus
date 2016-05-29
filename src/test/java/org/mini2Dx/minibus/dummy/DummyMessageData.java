@@ -21,15 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.mini2Dx.minibus;
+package org.mini2Dx.minibus.dummy;
+
+import org.mini2Dx.minibus.MessageData;
 
 /**
- * Common interface for messages passed through the {@link MessageBus}
+ * A dummy {@link MessageData} for unit tests
  */
-public interface Message {
-	/**
-	 * Returns the string identifier of this {@link Message}
-	 * @return
-	 */
-	public String getMessageType();
+public class DummyMessageData implements MessageData {
+	public static final String MESSAGE_TYPE = "DUMMY";
+	
+	private final int value;
+
+	public DummyMessageData(int value) {
+		this.value = value;
+	}
+
+	public int getValue() {
+		return value;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + value;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DummyMessageData other = (DummyMessageData) obj;
+		if (value != other.value)
+			return false;
+		return true;
+	}
 }

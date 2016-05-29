@@ -23,7 +23,7 @@
  */
 package org.mini2Dx.minibus.handler;
 
-import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageData;
 import org.mini2Dx.minibus.MessageExchange;
 
 /**
@@ -35,14 +35,14 @@ public class AllowAllMessageForwarder extends MessageForwarder {
 	 * Constructor
 	 * 
 	 * @param receivers
-	 *            The {@link MessageExchange}s to forward {@link Message}s to
+	 *            The {@link MessageExchange}s to forward {@link MessageData}s to
 	 */
 	public AllowAllMessageForwarder(MessageExchange... receivers) {
 		super(receivers);
 	}
 
 	@Override
-	public boolean forward(Message message) {
+	public boolean forward(MessageData messageData) {
 		return true;
 	}
 }

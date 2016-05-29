@@ -25,7 +25,7 @@ package org.mini2Dx.minibus.transmission;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageData;
 import org.mini2Dx.minibus.MessageExchange;
 
 /**
@@ -36,7 +36,8 @@ public class MessageTransmission {
 	private final AtomicInteger allocations = new AtomicInteger(0);
 	
 	private MessageExchange source;
-	private Message message;
+	private String messageType;
+	private MessageData messageData;
 	
 	public MessageTransmission(MessageTransmissionPool transmissionPool) {
 		this.transmissionPool = transmissionPool;
@@ -57,15 +58,23 @@ public class MessageTransmission {
 		return source;
 	}
 
-	public Message getMessage() {
-		return message;
+	public MessageData getMessage() {
+		return messageData;
 	}
 	
 	public void setSource(MessageExchange source) {
 		this.source = source;
 	}
 
-	public void setMessage(Message message) {
-		this.message = message;
+	public void setMessage(MessageData messageData) {
+		this.messageData = messageData;
+	}
+
+	public String getMessageType() {
+		return messageType;
+	}
+
+	public void setMessageType(String messageType) {
+		this.messageType = messageType;
 	}
 }

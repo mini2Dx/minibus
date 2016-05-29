@@ -28,13 +28,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageData;
 
 /**
- * A {@link Message} that also implements the {@link Map} interface, backed by a
+ * A {@link MessageData} that also implements the {@link Map} interface, backed by a
  * {@link Map} instance.
  */
-public class MapMessage<K, V> implements Map<K, V>, Message {
+public class MapMessage<K, V> implements Map<K, V>, MessageData {
 	private final Map<K, V> hashMap;
 	private final String messageType;
 
@@ -59,11 +59,6 @@ public class MapMessage<K, V> implements Map<K, V>, Message {
 	public MapMessage(String messageType, Map<K, V> hashMap) {
 		this.messageType = messageType;
 		this.hashMap = hashMap;
-	}
-
-	@Override
-	public String getMessageType() {
-		return messageType;
 	}
 
 	@Override

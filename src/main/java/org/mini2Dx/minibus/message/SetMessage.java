@@ -28,13 +28,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageData;
 
 /**
- * A {@link Message} that also implements the {@link Set} interface, backed by a
+ * A {@link MessageData} that also implements the {@link Set} interface, backed by a
  * {@link Set} instance
  */
-public class SetMessage<T> implements Set<T>, Message {
+public class SetMessage<T> implements Set<T>, MessageData {
 	private final String messageType;
 	private final Set<T> set;
 
@@ -55,11 +55,6 @@ public class SetMessage<T> implements Set<T>, Message {
 		super();
 		this.messageType = messageType;
 		this.set = set;
-	}
-
-	@Override
-	public String getMessageType() {
-		return messageType;
 	}
 
 	@Override

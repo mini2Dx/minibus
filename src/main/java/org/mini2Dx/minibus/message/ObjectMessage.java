@@ -23,12 +23,12 @@
  */
 package org.mini2Dx.minibus.message;
 
-import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageData;
 
 /**
- * A {@link Message} that stores an object
+ * A {@link MessageData} that stores an object
  */
-public class ObjectMessage<T> implements Message {
+public class ObjectMessage<T> implements MessageData {
 	private final String messageType;
 	private final T obj;
 	
@@ -44,11 +44,6 @@ public class ObjectMessage<T> implements Message {
 	
 	public T getObject() {
 		return obj;
-	}
-
-	@Override
-	public String getMessageType() {
-		return messageType;
 	}
 
 }

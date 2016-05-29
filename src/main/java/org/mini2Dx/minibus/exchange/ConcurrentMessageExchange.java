@@ -25,14 +25,14 @@ package org.mini2Dx.minibus.exchange;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageBus;
+import org.mini2Dx.minibus.MessageData;
 import org.mini2Dx.minibus.MessageExchange;
 import org.mini2Dx.minibus.MessageHandler;
 import org.mini2Dx.minibus.transmission.MessageTransmission;
 
 /**
- * Processes {@link Message}s on its own {@link Thread}. This thread will not
+ * Processes {@link MessageData}s on its own {@link Thread}. This thread will not
  * consume CPU if no messages are available. The exchange/thread can be stopped
  * by calling {@link ConcurrentMessageExchange#dispose()}
  */
@@ -60,7 +60,7 @@ public class ConcurrentMessageExchange extends MessageExchange implements Runnab
 				if(messageTransmission.getSource() == null) {
 					return;
 				}
-				messageHandler.onMessageReceived(messageTransmission.getSource(), this, messageTransmission.getMessage());
+				messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(), this, messageTransmission.getMessage());
 				messageTransmission.release();
 			} catch (InterruptedException e) {
 				e.printStackTrace();

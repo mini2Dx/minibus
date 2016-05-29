@@ -23,13 +23,13 @@
  */
 package org.mini2Dx.minibus.exchange;
 
-import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageBus;
+import org.mini2Dx.minibus.MessageData;
 import org.mini2Dx.minibus.MessageExchange;
 import org.mini2Dx.minibus.MessageHandler;
 
 /**
- * Processes {@link Message}s when {@link #update(float)} is called
+ * Processes {@link MessageData}s when {@link #update(float)} is called
  */
 public class OnUpdateMessageExchange extends MessageExchange {
 

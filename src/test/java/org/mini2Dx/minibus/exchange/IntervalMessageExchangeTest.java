@@ -26,17 +26,15 @@ package org.mini2Dx.minibus.exchange;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mini2Dx.minibus.Message;
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageExchange;
-import org.mini2Dx.minibus.dummy.DummyMessage;
 import org.mini2Dx.minibus.dummy.DummyMessageHandler;
-import org.mini2Dx.minibus.exchange.IntervalMessageExchange;
 
 /**
  * Unit tests for {@link IntervalMessageExchange}
  */
 public class IntervalMessageExchangeTest {
+	private static final String MESSAGE_TYPE = "message";
 	private static final float DELAY = 0.5f;
 
 	private final MessageBus messageBus = new MessageBus();
@@ -50,45 +48,41 @@ public class IntervalMessageExchangeTest {
 
 	@Test
 	public void testReceivesBroadcastMessagesByInterval() {
-		Message message = new DummyMessage(2);
-
 		Assert.assertEquals(false,
-				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 
-		messageBus.broadcast(message);
+		messageBus.broadcast(MESSAGE_TYPE);
 		Assert.assertEquals(false,
-				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 
 		for (float f = 0.1f; f < DELAY; f += 0.1f) {
 			exchange.update(0.1f);
 			Assert.assertEquals(false,
-					messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+					messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 		}
 
 		exchange.update(0.1f);
 		Assert.assertEquals(true,
-				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 	}
 
 	@Test
 	public void testReceivesDirectMessagesByInterval() {
-		Message message = new DummyMessage(2);
-
 		Assert.assertEquals(false,
-				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 
-		messageBus.sendTo(exchange, message);
+		messageBus.sendTo(exchange, MESSAGE_TYPE);
 		Assert.assertEquals(false,
-				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 
 		for (float f = 0.1f; f < DELAY; f += 0.1f) {
 			exchange.update(0.1f);
 			Assert.assertEquals(false,
-					messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+					messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 		}
 
 		exchange.update(0.1f);
 		Assert.assertEquals(true,
-				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(message));
+				messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 	}
 }

@@ -34,7 +34,7 @@ import org.mini2Dx.minibus.transmission.MessageTransmission;
 import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
 
 /**
- * A message bus to publishing {@link Message}s
+ * A message bus to publishing {@link MessageData}s
  */
 public class MessageBus {
 	final List<MessageExchange> exchangers = new CopyOnWriteArrayList<MessageExchange>();
@@ -86,7 +86,8 @@ public class MessageBus {
 	 *            The {@link MessageHandler} for processing messages received by
 	 *            the {@link MessageExchange}
 	 * @param interval
-	 *            The interval between processing {@link Message}s (in seconds)
+	 *            The interval between processing {@link MessageData}s (in
+	 *            seconds)
 	 * @return A new {@link IntervalMessageExchange}
 	 */
 	public MessageExchange createIntervalExchange(MessageHandler messageHandler, float interval) {
@@ -127,32 +128,61 @@ public class MessageBus {
 	}
 
 	/**
-	 * Broadcasts a {@link Message} to all {@link MessageExchange}s from an
-	 * anonymous source
+	 * Broadcasts a message to all {@link MessageExchange}s from an anonymous
+	 * source
 	 * 
-	 * @param message
-	 *            The {@link Message} to be published
+	 * @param messageType
+	 *            The message type
 	 */
-	public void broadcast(Message message) {
-		broadcast(anonymousExchange, message);
+	public void broadcast(String messageType) {
+		broadcast(anonymousExchange, messageType, null);
 	}
 
 	/**
-	 * Broadcasts a {@link Message} to all {@link MessageExchange}s from a
-	 * specified {@link MessageExchange}
+	 * Broadcasts a message with {@link MessageData} to all
+	 * {@link MessageExchange}s from an anonymous source
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param messageData
+	 *            The {@link MessageData} to be published
+	 */
+	public void broadcast(String messageType, MessageData messageData) {
+		broadcast(anonymousExchange, messageType, messageData);
+	}
+
+	/**
+	 * Broadcasts a message to all {@link MessageExchange}s from a specified
+	 * {@link MessageExchange}
 	 * 
 	 * @param messageExchange
-	 *            The {@link MessageExchange} to broadcast the {@link Message}
-	 *            from
-	 * @param message
-	 *            The {@link Message} to broadcast
+	 *            The {@link MessageExchange} to broadcast the
+	 *            {@link MessageData} from
+	 * @param messageType
+	 *            The message type
 	 */
-	public void broadcast(MessageExchange messageExchange, Message message) {
+	public void broadcast(MessageExchange messageExchange, String messageType) {
+		broadcast(messageExchange, messageType, null);
+	}
+
+	/**
+	 * Broadcasts a message with {@link MessageData} to all
+	 * {@link MessageExchange}s from a specified {@link MessageExchange}
+	 * 
+	 * @param messageExchange
+	 *            The {@link MessageExchange} to broadcast the
+	 *            {@link MessageData} from
+	 * @param messageType
+	 *            The message type
+	 * @param messageData
+	 *            The {@link MessageData} to broadcast
+	 */
+	public void broadcast(MessageExchange messageExchange, String messageType, MessageData messageData) {
 		if (exchangers.size() == 0) {
 			return;
 		}
 		MessageTransmission messageTransmission = transmissionPool.allocate();
-		messageTransmission.setMessage(message);
+		messageTransmission.setMessage(messageData);
 		messageTransmission.setSource(messageExchange);
 
 		for (int i = exchangers.size() - 1; i >= 0; i--) {
@@ -166,39 +196,69 @@ public class MessageBus {
 	}
 
 	/**
-	 * Sends a {@link Message} from one {@link MessageExchange} to another
+	 * Sends a message from one {@link MessageExchange} to another
 	 * 
 	 * @param source
-	 *            The {@link MessageExchange} the {@link Message} is sent from
+	 *            The {@link MessageExchange} the {@link MessageData} is sent
+	 *            from
 	 * @param destination
-	 *            The {@link MessageExchange} the {@link Message} is sent to
-	 * @param message
-	 *            The {@link Message} that is sent
+	 *            The {@link MessageExchange} the {@link MessageData} is sent to
+	 * @parma messageType The message type
 	 */
-	public void send(MessageExchange source, MessageExchange destination, Message message) {
+	public void send(MessageExchange source, MessageExchange destination, String messageType) {
+		send(source, destination, messageType, null);
+	}
+
+	/**
+	 * Sends a message with {@link MessageData} from one {@link MessageExchange}
+	 * to another
+	 * 
+	 * @param source
+	 *            The {@link MessageExchange} the {@link MessageData} is sent
+	 *            from
+	 * @param destination
+	 *            The {@link MessageExchange} the {@link MessageData} is sent to
+	 * @param messageType The message type
+	 * @param messageData
+	 *            The {@link MessageData} that is sent
+	 */
+	public void send(MessageExchange source, MessageExchange destination, String messageType, MessageData messageData) {
 		if (source == null) {
 			throw new RuntimeException("source cannot be null, use sendTo() instead");
 		}
 		MessageTransmission messageTransmission = transmissionPool.allocate();
 		messageTransmission.allocate();
-		messageTransmission.setMessage(message);
+		messageTransmission.setMessage(messageData);
 		messageTransmission.setSource(source);
 		destination.queue(messageTransmission);
 	}
-
+	
 	/**
-	 * Sends a {@link Message} to a {@link MessageExchange} from an anonymous
-	 * source
+	 * Sends a message to a {@link MessageExchange} from an
+	 * anonymous source
 	 * 
 	 * @param destination
-	 *            The {@link MessageExchange} the {@link Message} is sent to
-	 * @param message
-	 *            The {@link Message} that is sent
+	 *            The {@link MessageExchange} the {@link MessageData} is sent to
+	 * @param messageType The message type
 	 */
-	public void sendTo(MessageExchange destination, Message message) {
+	public void sendTo(MessageExchange destination, String messageType) {
+		sendTo(destination, messageType, null);
+	}
+
+	/**
+	 * Sends a message with {@link MessageData} to a {@link MessageExchange} from an
+	 * anonymous source
+	 * 
+	 * @param destination
+	 *            The {@link MessageExchange} the {@link MessageData} is sent to
+	 * @param messageType The message type
+	 * @param messageData
+	 *            The {@link MessageData} that is sent
+	 */
+	public void sendTo(MessageExchange destination, String messageType, MessageData messageData) {
 		MessageTransmission messageTransmission = transmissionPool.allocate();
 		messageTransmission.allocate();
-		messageTransmission.setMessage(message);
+		messageTransmission.setMessage(messageData);
 		messageTransmission.setSource(anonymousExchange);
 		destination.queue(messageTransmission);
 	}
@@ -227,7 +287,8 @@ public class MessageBus {
 		public AnonymousMessageExchange(MessageBus messageBus) {
 			super(messageBus, new MessageHandler() {
 				@Override
-				public void onMessageReceived(MessageExchange source, MessageExchange receiver, Message message) {
+				public void onMessageReceived(String messageType, MessageExchange source, MessageExchange receiver,
+						MessageData messageData) {
 				}
 			});
 		}

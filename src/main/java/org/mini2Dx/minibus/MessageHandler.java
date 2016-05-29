@@ -24,19 +24,20 @@
 package org.mini2Dx.minibus;
 
 /**
- * Common interface for {@link Message} processing implementations
+ * Common interface for message processing implementations
  */
 public interface MessageHandler {
 
 	/**
-	 * Called when a {@link Message} is received
+	 * Called when a message is received
 	 * 
+	 * @param messageType The string representing the message type
 	 * @param source
-	 *            The {@link MessageExchange} that sent the {@link Message}
+	 *            The {@link MessageExchange} that sent the message
 	 * @param receiver
-	 *            The {@link MessageExchange} that received the {@link Message}
-	 * @param message
-	 *            The {@link Message} that was received
+	 *            The {@link MessageExchange} that received the message
+	 * @param messageData
+	 *            The {@link MessageData} that was received if any (i.e. possibly null)
 	 */
-	public void onMessageReceived(MessageExchange source, MessageExchange receiver, Message message);
+	public void onMessageReceived(String messageType, MessageExchange source, MessageExchange receiver, MessageData messageData);
 }

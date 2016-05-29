@@ -26,7 +26,7 @@ package org.mini2Dx.minibus.dummy;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mini2Dx.minibus.Message;
+import org.mini2Dx.minibus.MessageData;
 import org.mini2Dx.minibus.MessageExchange;
 import org.mini2Dx.minibus.handler.MessageForwarder;
 
@@ -36,27 +36,27 @@ import org.mini2Dx.minibus.handler.MessageForwarder;
 public class DummyMessageForwarder extends MessageForwarder {
 	private boolean forwardMessages = true;
 	
-	private final List<Message> messagesReceived = new ArrayList<Message>();
-	private final List<Message> messagesSent = new ArrayList<Message>();
+	private final List<MessageData> messagesReceived = new ArrayList<MessageData>();
+	private final List<MessageData> messagesSent = new ArrayList<MessageData>();
 
 	public DummyMessageForwarder(MessageExchange... receivers) {
 		super(receivers);
 	}
 
 	@Override
-	public boolean forward(Message message) {
-		messagesReceived.add(message);
+	public boolean forward(MessageData messageData) {
+		messagesReceived.add(messageData);
 		if(forwardMessages) {
-			messagesSent.add(message);
+			messagesSent.add(messageData);
 		}
 		return forwardMessages;
 	}
 
-	public List<Message> getMessagesReceived() {
+	public List<MessageData> getMessagesReceived() {
 		return messagesReceived;
 	}
 	
-	public List<Message> getMessagesSent() {
+	public List<MessageData> getMessagesSent() {
 		return messagesSent;
 	}
 	
