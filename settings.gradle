@@ -1,4 +1,1 @@
-include "core"
-
 rootProject.name = 'minibus'
-rootProject.children.each { it.name = rootProject.name + "-" + it.name }

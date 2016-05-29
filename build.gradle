@@ -1,74 +1,119 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
-subprojects {
-	apply plugin: 'maven'
-	apply plugin: 'eclipse'
-	apply plugin: 'idea'
-	
-	group = 'org.mini2Dx'
-	version = '1.0.0-SNAPSHOT'
-
+buildscript {
 	repositories {
 		mavenLocal()
 		mavenCentral()
-		maven { url "https://mini2dx.org/maven/content/repositories/thirdparty" }
+		jcenter()
+	}
+	dependencies {
+		classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3'
 	}
 }
 
-def docProjects() {
-	subprojects.findAll { !it.name.contains('uat') }
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: "java"
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+if(project.hasProperty('ossrhUser') && project.hasProperty("release")) {
+	apply plugin: "io.codearte.nexus-staging"
+
+	nexusStaging {
+		username = ossrhUser
+		password = ossrhPassword
+	}
 }
 
-configure(docProjects()) {
-	apply plugin: "java"
-	apply plugin: "maven-publish"
-	
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
-	
-	task sourceJar(type: Jar) {
-		from sourceSets.main.allJava
+group = 'org.mini2Dx'
+version = '1.0.0-SNAPSHOT'
+description = 'A lightweight message bus library for Java-based game engines'
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	maven { url "https://mini2dx.org/maven/content/repositories/thirdparty" }
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+task javadocJar(type: Jar) {
+	classifier = 'javadoc'
+	from javadoc
+}
+
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+artifacts {
+	archives javadocJar, sourcesJar
+}
+
+dependencies {
+	testCompile 'junit:junit:4.11'
+	testCompile "org.jmock:jmock-junit4:2.5.1"
+	testCompile "org.jmock:jmock-legacy:2.5.1"
+}
+
+task docs(type: Javadoc) {
+	source project.sourceSets.main.allJava
+	classpath = files(project.sourceSets.main.compileClasspath)
+	destinationDir = new File(project.projectDir, 'docs')
+}
+docs.dependsOn build
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.13'
+}
+
+// Maven Central publication
+if(project.hasProperty('ossrhUser')) {
+	signing {
+		sign configurations.archives
 	}
 	
-	publishing {
+	uploadArchives {
 		repositories {
-			maven {
-				url "https://mini2dx.org/maven/content/repositories/releases"
-				if(project.hasProperty('mini2DxMavenUser')) {
-					credentials {
-						username = project.property('mini2DxMavenUser')
-						password = project.property('mini2DxMavenPassword')
+			mavenDeployer {
+				// POM signature
+				beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+				// Target repository
+				repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+					authentication(userName: ossrhUser, password: ossrhPassword)
+				}
+				pom.project {
+					name project.name
+					description project.description
+					packaging 'jar'
+					url 'https://github.com/mini2Dx/minibus'
+
+					scm {
+						connection 'scm:git:https://github.com/mini2Dx/minibus.git'
+						developerConnection 'scm:git:git@github.com:mini2Dx/minibus.git'
+						url 'https://github.com/mini2Dx/minibus.git'
+					}
+
+					licenses {
+						license {
+							name 'The MIT License (MIT)'
+							url 'https://opensource.org/licenses/MIT'
+							distribution 'repo'
+						}
+					}
+
+					developers {
+						developer {
+							id = 'tomcashman'
+							name = 'Thomas Cashman'
+							email = 'thomascashman404@gmail.com'
+						}
 					}
 				}
 			}
 		}
-		publications {
-			maven(MavenPublication) {
-				from components.java
-				
-				artifact sourceJar {
-					classifier "sources"
-				}
-			}
-		}
 	}
-}
-
-project(":" + rootProject.name + "-core") {
-	dependencies {
-		testCompile 'junit:junit:4.11'
-		testCompile "org.jmock:jmock-junit4:2.5.1"
-		testCompile "org.jmock:jmock-legacy:2.5.1"
-	}
-	
-	task docs(type: Javadoc) {
-		source docProjects().collect {p -> p.sourceSets.main.allJava }
-		classpath = files(docProjects().collect {p -> p.sourceSets.main.compileClasspath})
-		destinationDir = new File(project.parent.projectDir, 'docs')
-	}
-	docs.dependsOn docProjects().build
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.9'
 }
