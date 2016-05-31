@@ -80,8 +80,8 @@ public abstract class MessageExchange {
 	 * Broadcasts a message from this {@link MessageExchange} to all other
 	 * {@link MessageExchange}s
 	 * 
-	 * @param messageData
-	 *            The {@link MessageData} to broadcast
+	 * @param messageType
+	 *            The message type to broadcast
 	 */
 	public void broadcast(String messageType) {
 		messageBus.broadcast(this, messageType);
@@ -91,6 +91,8 @@ public abstract class MessageExchange {
 	 * Broadcasts a message with {@link MessageData} from this
 	 * {@link MessageExchange} to all other {@link MessageExchange}s
 	 * 
+	 * @param messageType
+	 *            The message type to broadcast
 	 * @param messageData
 	 *            The {@link MessageData} to broadcast
 	 */
@@ -101,8 +103,10 @@ public abstract class MessageExchange {
 	/**
 	 * Sends a message with from this {@link MessageExchange} to another
 	 * 
-	 * @param destination The {@link MessageExchange} to send the {@link MessageData} to
-	 * @param messageType The message type
+	 * @param destination
+	 *            The {@link MessageExchange} to send the {@link MessageData} to
+	 * @param messageType
+	 *            The message type
 	 */
 	public void sendTo(MessageExchange destination, String messageType) {
 		messageBus.send(this, destination, messageType);
@@ -125,7 +129,7 @@ public abstract class MessageExchange {
 
 	/**
 	 * Flushes all {@link MessageData}s in the queue to
-	 * {@link MessageHandler#onMessageReceived(MessageExchange, MessageData)}
+	 * {@link MessageHandler#onMessageReceived(String, MessageExchange, MessageExchange, MessageData)}
 	 */
 	protected void flush() {
 		while (!messageQueue.isEmpty()) {

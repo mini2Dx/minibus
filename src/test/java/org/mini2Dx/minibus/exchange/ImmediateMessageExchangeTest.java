@@ -48,10 +48,10 @@ public class ImmediateMessageExchangeTest {
 	@Test
 	public void testReceivesBroadcastMessages() {
 		messageBus.broadcast(MESSAGE_TYPE);
-		Assert.assertEquals(true, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).size());
-		Assert.assertEquals(false, messageHandler.getMessagesReceived(exchange.getId()).contains(MESSAGE_TYPE));
+		Assert.assertEquals(true, messageHandler.getMessagesReceived(messageBus.getAnonymousExchangeId()).contains(MESSAGE_TYPE));
 		Assert.assertEquals(0, messageHandler.getMessagesReceived(exchange.getId()).size());
+		Assert.assertEquals(false, messageHandler.getMessagesReceived(exchange.getId()).contains(MESSAGE_TYPE));
 	}
 	
 	@Test

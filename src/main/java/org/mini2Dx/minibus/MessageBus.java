@@ -118,7 +118,7 @@ public class MessageBus {
 	 * 
 	 * @param messageHandler
 	 *            The {@link MessageHandler} for processing messages received by
-	 *            the {@link MessageConsumer}
+	 *            the {@link MessageExchange}
 	 * @return A new {@link ConcurrentMessageExchange} running on its own thread
 	 */
 	public MessageExchange createConcurrentExchange(MessageHandler messageHandler) {
@@ -182,7 +182,8 @@ public class MessageBus {
 			return;
 		}
 		MessageTransmission messageTransmission = transmissionPool.allocate();
-		messageTransmission.setMessage(messageData);
+		messageTransmission.setMessageType(messageType);
+		messageTransmission.setMessageData(messageData);
 		messageTransmission.setSource(messageExchange);
 
 		for (int i = exchangers.size() - 1; i >= 0; i--) {
@@ -203,7 +204,7 @@ public class MessageBus {
 	 *            from
 	 * @param destination
 	 *            The {@link MessageExchange} the {@link MessageData} is sent to
-	 * @parma messageType The message type
+	 * @param messageType The message type
 	 */
 	public void send(MessageExchange source, MessageExchange destination, String messageType) {
 		send(source, destination, messageType, null);
@@ -228,7 +229,8 @@ public class MessageBus {
 		}
 		MessageTransmission messageTransmission = transmissionPool.allocate();
 		messageTransmission.allocate();
-		messageTransmission.setMessage(messageData);
+		messageTransmission.setMessageType(messageType);
+		messageTransmission.setMessageData(messageData);
 		messageTransmission.setSource(source);
 		destination.queue(messageTransmission);
 	}
@@ -258,7 +260,8 @@ public class MessageBus {
 	public void sendTo(MessageExchange destination, String messageType, MessageData messageData) {
 		MessageTransmission messageTransmission = transmissionPool.allocate();
 		messageTransmission.allocate();
-		messageTransmission.setMessage(messageData);
+		messageTransmission.setMessageType(messageType);
+		messageTransmission.setMessageData(messageData);
 		messageTransmission.setSource(anonymousExchange);
 		destination.queue(messageTransmission);
 	}

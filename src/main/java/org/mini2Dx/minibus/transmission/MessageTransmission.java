@@ -66,7 +66,7 @@ public class MessageTransmission {
 		this.source = source;
 	}
 
-	public void setMessage(MessageData messageData) {
+	public void setMessageData(MessageData messageData) {
 		this.messageData = messageData;
 	}
 
