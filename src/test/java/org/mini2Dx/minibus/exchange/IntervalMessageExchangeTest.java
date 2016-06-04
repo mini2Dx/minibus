@@ -31,7 +31,7 @@ import org.mini2Dx.minibus.MessageExchange;
 import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 
 /**
- * Unit tests for {@link IntervalMessageExchange}
+ * Integration tests for {@link IntervalMessageExchange}
  */
 public class IntervalMessageExchangeTest {
 	private static final String MESSAGE_TYPE = "message";

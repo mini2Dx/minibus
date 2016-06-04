@@ -31,7 +31,7 @@ import org.mini2Dx.minibus.MessageExchange;
 import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 
 /**
- * Unit tests for {@link ConcurrentMessageExchange}
+ * Integration tests for {@link ConcurrentMessageExchange}
  */
 public class ConcurrentMessageExchangeTest {
 	private static final String MESSAGE_TYPE = "message";

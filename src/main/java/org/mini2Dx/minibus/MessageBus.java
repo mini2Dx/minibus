@@ -315,6 +315,14 @@ public class MessageBus {
 	void dispose(MessageExchange messageExchange) {
 		exchangers.remove(messageExchange);
 	}
+	
+	/**
+	 * Returns the amount of {@link QueryMessageExchange} instances available
+	 * @return 0 if no queries have ever completed
+	 */
+	public int getQueryMessagePoolSize() {
+		return queryMessageExchangePool.getSize();
+	}
 
 	/**
 	 * Returns the id of the {@link MessageExchange} used for anonymous sending

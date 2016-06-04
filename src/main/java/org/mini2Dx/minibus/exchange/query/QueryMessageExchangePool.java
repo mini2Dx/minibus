@@ -54,4 +54,8 @@ public class QueryMessageExchangePool {
 	public void release(QueryMessageExchange queryMessageExchange) {
 		pool.offer(queryMessageExchange);
 	}
+	
+	public int getSize() {
+		return pool.size();
+	}
 }

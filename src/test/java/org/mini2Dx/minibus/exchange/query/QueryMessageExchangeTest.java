@@ -12,7 +12,7 @@ import org.mini2Dx.minibus.MessageHandler;
 import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 
 /**
- * Unit tests for {@link QueryMessageExchange}
+ * Integration tests for {@link QueryMessageExchange}
  */
 public class QueryMessageExchangeTest implements MessageHandler {
 	private static final String MESSAGE_TYPE = "message";
@@ -30,6 +30,7 @@ public class QueryMessageExchangeTest implements MessageHandler {
 		respondToMessage = true;
 		
 		messageBus.broadcastQuery(MESSAGE_TYPE, messageHandler);
+		Assert.assertEquals(1, messageBus.getQueryMessagePoolSize());
 		
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(sourceExchange.getId()).size());
 		Assert.assertEquals(true, messageHandler.getMessagesReceived(sourceExchange.getId()).contains(MESSAGE_TYPE));
@@ -42,7 +43,10 @@ public class QueryMessageExchangeTest implements MessageHandler {
 		
 		messageBus.broadcastQuery(MESSAGE_TYPE, messageHandler);
 		sourceExchange.broadcast(BROADCAST_MESSAGE_TYPE);
+		
+		Assert.assertEquals(0, messageBus.getQueryMessagePoolSize());
 		sourceExchange.sendTo(queryExchange, MESSAGE_TYPE);
+		Assert.assertEquals(1, messageBus.getQueryMessagePoolSize());
 		
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(sourceExchange.getId()).size());
 		Assert.assertEquals(true, messageHandler.getMessagesReceived(sourceExchange.getId()).contains(MESSAGE_TYPE));
@@ -55,7 +59,10 @@ public class QueryMessageExchangeTest implements MessageHandler {
 		
 		messageBus.broadcastQuery(MESSAGE_TYPE, messageHandler);
 		messageBus.sendTo(queryExchange, BROADCAST_MESSAGE_TYPE);
+		
+		Assert.assertEquals(0, messageBus.getQueryMessagePoolSize());
 		sourceExchange.sendTo(queryExchange, MESSAGE_TYPE);
+		Assert.assertEquals(1, messageBus.getQueryMessagePoolSize());
 		
 		Assert.assertEquals(1, messageHandler.getMessagesReceived(sourceExchange.getId()).size());
 		Assert.assertEquals(true, messageHandler.getMessagesReceived(sourceExchange.getId()).contains(MESSAGE_TYPE));
