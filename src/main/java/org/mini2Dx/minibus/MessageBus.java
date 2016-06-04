@@ -30,6 +30,8 @@ import org.mini2Dx.minibus.exchange.ConcurrentMessageExchange;
 import org.mini2Dx.minibus.exchange.ImmediateMessageExchange;
 import org.mini2Dx.minibus.exchange.IntervalMessageExchange;
 import org.mini2Dx.minibus.exchange.OnUpdateMessageExchange;
+import org.mini2Dx.minibus.exchange.query.QueryMessageExchange;
+import org.mini2Dx.minibus.exchange.query.QueryMessageExchangePool;
 import org.mini2Dx.minibus.transmission.MessageTransmission;
 import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
 
@@ -41,12 +43,14 @@ public class MessageBus {
 	final MessageTransmissionPool transmissionPool = new MessageTransmissionPool();
 
 	private final MessageExchange anonymousExchange;
+	private final QueryMessageExchangePool queryMessageExchangePool;
 
 	/**
 	 * Constructor
 	 */
 	public MessageBus() {
 		anonymousExchange = new AnonymousMessageExchange(this);
+		queryMessageExchangePool = new QueryMessageExchangePool(this);
 	}
 
 	/**
@@ -155,21 +159,21 @@ public class MessageBus {
 	 * Broadcasts a message to all {@link MessageExchange}s from a specified
 	 * {@link MessageExchange}
 	 * 
-	 * @param messageExchange
+	 * @param source
 	 *            The {@link MessageExchange} to broadcast the
 	 *            {@link MessageData} from
 	 * @param messageType
 	 *            The message type
 	 */
-	public void broadcast(MessageExchange messageExchange, String messageType) {
-		broadcast(messageExchange, messageType, null);
+	public void broadcast(MessageExchange source, String messageType) {
+		broadcast(source, messageType, null);
 	}
 
 	/**
 	 * Broadcasts a message with {@link MessageData} to all
 	 * {@link MessageExchange}s from a specified {@link MessageExchange}
 	 * 
-	 * @param messageExchange
+	 * @param source
 	 *            The {@link MessageExchange} to broadcast the
 	 *            {@link MessageData} from
 	 * @param messageType
@@ -177,18 +181,19 @@ public class MessageBus {
 	 * @param messageData
 	 *            The {@link MessageData} to broadcast
 	 */
-	public void broadcast(MessageExchange messageExchange, String messageType, MessageData messageData) {
+	public void broadcast(MessageExchange source, String messageType, MessageData messageData) {
 		if (exchangers.size() == 0) {
 			return;
 		}
 		MessageTransmission messageTransmission = transmissionPool.allocate();
 		messageTransmission.setMessageType(messageType);
 		messageTransmission.setMessageData(messageData);
-		messageTransmission.setSource(messageExchange);
+		messageTransmission.setSource(source);
+		messageTransmission.setBroadcastMessage(true);
 
 		for (int i = exchangers.size() - 1; i >= 0; i--) {
 			MessageExchange exchange = exchangers.get(i);
-			if (exchange.getId() == messageExchange.getId()) {
+			if (exchange.getId() == source.getId()) {
 				continue;
 			}
 			messageTransmission.allocate();
@@ -204,7 +209,8 @@ public class MessageBus {
 	 *            from
 	 * @param destination
 	 *            The {@link MessageExchange} the {@link MessageData} is sent to
-	 * @param messageType The message type
+	 * @param messageType
+	 *            The message type
 	 */
 	public void send(MessageExchange source, MessageExchange destination, String messageType) {
 		send(source, destination, messageType, null);
@@ -219,7 +225,8 @@ public class MessageBus {
 	 *            from
 	 * @param destination
 	 *            The {@link MessageExchange} the {@link MessageData} is sent to
-	 * @param messageType The message type
+	 * @param messageType
+	 *            The message type
 	 * @param messageData
 	 *            The {@link MessageData} that is sent
 	 */
@@ -232,28 +239,30 @@ public class MessageBus {
 		messageTransmission.setMessageType(messageType);
 		messageTransmission.setMessageData(messageData);
 		messageTransmission.setSource(source);
+		messageTransmission.setBroadcastMessage(false);
 		destination.queue(messageTransmission);
 	}
-	
+
 	/**
-	 * Sends a message to a {@link MessageExchange} from an
-	 * anonymous source
+	 * Sends a message to a {@link MessageExchange} from an anonymous source
 	 * 
 	 * @param destination
 	 *            The {@link MessageExchange} the {@link MessageData} is sent to
-	 * @param messageType The message type
+	 * @param messageType
+	 *            The message type
 	 */
 	public void sendTo(MessageExchange destination, String messageType) {
 		sendTo(destination, messageType, null);
 	}
 
 	/**
-	 * Sends a message with {@link MessageData} to a {@link MessageExchange} from an
-	 * anonymous source
+	 * Sends a message with {@link MessageData} to a {@link MessageExchange}
+	 * from an anonymous source
 	 * 
 	 * @param destination
 	 *            The {@link MessageExchange} the {@link MessageData} is sent to
-	 * @param messageType The message type
+	 * @param messageType
+	 *            The message type
 	 * @param messageData
 	 *            The {@link MessageData} that is sent
 	 */
@@ -263,13 +272,47 @@ public class MessageBus {
 		messageTransmission.setMessageType(messageType);
 		messageTransmission.setMessageData(messageData);
 		messageTransmission.setSource(anonymousExchange);
+		messageTransmission.setBroadcastMessage(false);
 		destination.queue(messageTransmission);
 	}
 
 	/**
-	 * Internal use only. Please use {@link MessageExchange#dispose()}
+	 * Broadcasts a message and calls a {@link MessageHandler} when a direct
+	 * message response is received. A direct response is a message sent
+	 * explicitly from a {@link MessageExchange} to the {@link MessageExchange}
+	 * used to send the query.
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param queryHandler
+	 *            The {@link MessageHandler} to call when the response is
+	 *            received
 	 */
-	public void dispose(MessageExchange messageExchange) {
+	public void broadcastQuery(String messageType, MessageHandler queryHandler) {
+		broadcastQuery(messageType, null, queryHandler);
+	}
+
+	/**
+	 * Broadcasts a message with {@link MessageData} and calls a
+	 * {@link MessageHandler} when a direct message response is received. A
+	 * direct response is a message sent explicitly from a
+	 * {@link MessageExchange} to the {@link MessageExchange} used to send the
+	 * query.
+	 * 
+	 * @param messageType
+	 *            The message type
+	 * @param messageData
+	 *            The {@link MessageData} that is sent
+	 * @param queryHandler
+	 *            The {@link MessageHandler} to call when the response is
+	 *            received
+	 */
+	public void broadcastQuery(String messageType, MessageData messageData, MessageHandler queryHandler) {
+		QueryMessageExchange queryMessageExchange = queryMessageExchangePool.allocate(queryHandler);
+		broadcast(queryMessageExchange, messageType, messageData);
+	}
+
+	void dispose(MessageExchange messageExchange) {
 		exchangers.remove(messageExchange);
 	}
 
@@ -302,6 +345,11 @@ public class MessageBus {
 
 		@Override
 		public boolean isImmediate() {
+			return true;
+		}
+
+		@Override
+		public boolean isAnonymous() {
 			return true;
 		}
 	}

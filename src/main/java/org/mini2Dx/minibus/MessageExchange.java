@@ -62,18 +62,45 @@ public abstract class MessageExchange {
 	}
 
 	/**
+	 * An overidable method for processing a {@link MessageTransmission} before
+	 * queueing into this {@link MessageExchange}
+	 * 
+	 * @param messageTransmission
+	 *            The {@link MessageTransmission} to process
+	 * @return True if this {@link MessageTransmission} should be queued
+	 */
+	protected boolean preQueue(MessageTransmission messageTransmission) {
+		return true;
+	}
+
+	/**
+	 * An overidable method for processing a {@link MessageTransmission} after
+	 * queueing into this {@link MessageExchange}. Note this method is only
+	 * called if the {@link MessageTransmission} was successfully queued.
+	 * 
+	 * @param messageTransmission
+	 *            The {@link MessageTransmission} to process
+	 */
+	protected void postQueue(MessageTransmission messageTransmission) {
+	}
+
+	/**
 	 * Queues a {@link MessageTransmission} to be sent to the
 	 * {@link MessageHandler}
 	 * 
 	 * @param messageTransmission
 	 */
 	void queue(MessageTransmission messageTransmission) {
+		if (!preQueue(messageTransmission)) {
+			return;
+		}
 		if (isImmediate()) {
 			messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(),
 					this, messageTransmission.getMessage());
 		} else {
 			messageQueue.offer(messageTransmission);
 		}
+		postQueue(messageTransmission);
 	}
 
 	/**
@@ -172,5 +199,15 @@ public abstract class MessageExchange {
 	 */
 	public int getId() {
 		return id;
+	}
+
+	/**
+	 * Returns if this {@link MessageExchange} is used for anonymous messages by
+	 * the {@link MessageBus}
+	 * 
+	 * @return False by defaut
+	 */
+	public boolean isAnonymous() {
+		return false;
 	}
 }

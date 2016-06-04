@@ -35,6 +35,7 @@ public class MessageTransmission {
 	private final MessageTransmissionPool transmissionPool;
 	private final AtomicInteger allocations = new AtomicInteger(0);
 	
+	private boolean broadcastMessage;
 	private MessageExchange source;
 	private String messageType;
 	private MessageData messageData;
@@ -76,5 +77,13 @@ public class MessageTransmission {
 
 	public void setMessageType(String messageType) {
 		this.messageType = messageType;
+	}
+
+	public boolean isBroadcastMessage() {
+		return broadcastMessage;
+	}
+
+	public void setBroadcastMessage(boolean broadcastMessage) {
+		this.broadcastMessage = broadcastMessage;
 	}
 }
