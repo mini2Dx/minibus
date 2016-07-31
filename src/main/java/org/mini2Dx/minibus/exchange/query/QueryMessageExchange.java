@@ -36,6 +36,8 @@ import org.mini2Dx.minibus.transmission.MessageTransmission;
 public class QueryMessageExchange extends ImmediateMessageExchange {
 	private final QueryMessageExchangePool exchangePool;
 	private final MessageHandlerChain handlerChain;
+	private boolean requiresDirectResponse;
+	private String responseMessageType;
 
 	public QueryMessageExchange(QueryMessageExchangePool exchangePool, MessageBus messageBus,
 			MessageHandlerChain handlerChain) {
@@ -46,10 +48,13 @@ public class QueryMessageExchange extends ImmediateMessageExchange {
 
 	@Override
 	protected boolean preQueue(MessageTransmission messageTransmission) {
-		if (messageTransmission.getSource().isAnonymous()) {
+		if (requiresDirectResponse && messageTransmission.isBroadcastMessage()) {
 			return false;
 		}
-		if (messageTransmission.isBroadcastMessage()) {
+		if (requiresDirectResponse && messageTransmission.getSource().isAnonymous()) {
+			return false;
+		}
+		if (!messageTransmission.getMessageType().equals(responseMessageType)) {
 			return false;
 		}
 		return true;
@@ -69,5 +74,13 @@ public class QueryMessageExchange extends ImmediateMessageExchange {
 
 	public void setMessageHandler(MessageHandler messageHandler) {
 		handlerChain.add(messageHandler);
+	}
+
+	public void setRequiresDirectResponse(boolean requiresDirectResponse) {
+		this.requiresDirectResponse = requiresDirectResponse;
+	}
+
+	public void setResponseMessageType(String responseMessageType) {
+		this.responseMessageType = responseMessageType;
 	}
 }

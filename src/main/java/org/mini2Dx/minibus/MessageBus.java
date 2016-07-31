@@ -50,7 +50,7 @@ public class MessageBus {
 	 */
 	public MessageBus() {
 		anonymousExchange = new AnonymousMessageExchange(this);
-		queryMessageExchangePool = new QueryMessageExchangePool(this);
+		queryMessageExchangePool = new QueryMessageExchangePool(this, exchangers);
 	}
 
 	/**
@@ -277,47 +277,94 @@ public class MessageBus {
 	}
 
 	/**
-	 * Broadcasts a message and calls a {@link MessageHandler} when a direct
-	 * message response is received. A direct response is a message sent
-	 * explicitly from a {@link MessageExchange} to the {@link MessageExchange}
-	 * used to send the query.
+	 * Broadcasts a message and calls a {@link MessageHandler} when a response
+	 * message is received.
 	 * 
 	 * @param messageType
-	 *            The message type
+	 *            The message type to send
+	 * @param responseMessageType
+	 *            The required message type of the response
 	 * @param queryHandler
 	 *            The {@link MessageHandler} to call when the response is
 	 *            received
 	 */
-	public void broadcastQuery(String messageType, MessageHandler queryHandler) {
-		broadcastQuery(messageType, null, queryHandler);
+	public void broadcastQuery(String messageType, String responseMessageType, MessageHandler queryHandler) {
+		broadcastQuery(messageType, null, responseMessageType, false, queryHandler);
 	}
 
 	/**
-	 * Broadcasts a message with {@link MessageData} and calls a
-	 * {@link MessageHandler} when a direct message response is received. A
-	 * direct response is a message sent explicitly from a
-	 * {@link MessageExchange} to the {@link MessageExchange} used to send the
-	 * query.
+	 * Broadcasts a message and calls a {@link MessageHandler} when a response
+	 * message is received.
 	 * 
 	 * @param messageType
-	 *            The message type
-	 * @param messageData
-	 *            The {@link MessageData} that is sent
+	 *            The message type to send
+	 * @param responseMessageType
+	 *            The required message type of the response
+	 * @param requiresDirectResponse
+	 *            True if a direct response is required. A direct response is a
+	 *            message sent explicitly from a {@link MessageExchange} to the
+	 *            {@link MessageExchange} used to send the query.
 	 * @param queryHandler
 	 *            The {@link MessageHandler} to call when the response is
 	 *            received
 	 */
-	public void broadcastQuery(String messageType, MessageData messageData, MessageHandler queryHandler) {
-		QueryMessageExchange queryMessageExchange = queryMessageExchangePool.allocate(queryHandler);
+	public void broadcastQuery(String messageType, String responseMessageType, boolean requiresDirectResponse,
+			MessageHandler queryHandler) {
+		broadcastQuery(messageType, null, responseMessageType, requiresDirectResponse, queryHandler);
+	}
+
+	/**
+	 * Broadcasts a message and calls a {@link MessageHandler} when a response
+	 * message is received.
+	 * 
+	 * @param messageType
+	 *            The message type to send
+	 * @param messageData
+	 *            The {@link MessageData} to send
+	 * @param responseMessageType
+	 *            The required message type of the response
+	 * @param queryHandler
+	 *            The {@link MessageHandler} to call when the response is
+	 *            received
+	 */
+	public void broadcastQuery(String messageType, MessageData messageData, String responseMessageType,
+			MessageHandler queryHandler) {
+		broadcastQuery(messageType, messageData, responseMessageType, false, queryHandler);
+	}
+
+	/**
+	 * Broadcasts a message and calls a {@link MessageHandler} when a response
+	 * message is received.
+	 * 
+	 * @param messageType
+	 *            The message type to send
+	 * @param messageData
+	 *            The {@link MessageData} to send
+	 * @param responseMessageType
+	 *            The required message type of the response
+	 * @param requiresDirectResponse
+	 *            True if a direct response is required. A direct response is a
+	 *            message sent explicitly from a {@link MessageExchange} to the
+	 *            {@link MessageExchange} used to send the query.
+	 * @param queryHandler
+	 *            The {@link MessageHandler} to call when the response is
+	 *            received
+	 */
+	public void broadcastQuery(String messageType, MessageData messageData, String responseMessageType,
+			boolean requiresDirectResponse, MessageHandler queryHandler) {
+		QueryMessageExchange queryMessageExchange = queryMessageExchangePool.allocate(queryHandler, responseMessageType,
+				requiresDirectResponse);
+		exchangers.add(queryMessageExchange);
 		broadcast(queryMessageExchange, messageType, messageData);
 	}
 
 	void dispose(MessageExchange messageExchange) {
 		exchangers.remove(messageExchange);
 	}
-	
+
 	/**
 	 * Returns the amount of {@link QueryMessageExchange} instances available
+	 * 
 	 * @return 0 if no queries have ever completed
 	 */
 	public int getQueryMessagePoolSize() {
@@ -331,6 +378,16 @@ public class MessageBus {
 	 */
 	public int getAnonymousExchangeId() {
 		return anonymousExchange.getId();
+	}
+
+	/**
+	 * Returns the total amount of active {@link MessageExchange}s (including
+	 * {@link QueryMessageExchange}s
+	 * 
+	 * @return
+	 */
+	public int getTotalActiveExchanges() {
+		return exchangers.size();
 	}
 
 	/**
