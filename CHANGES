@@ -1,2 +1,5 @@
+[1.1.0]
+- Query messages can now optionally require direct responses
+
 [1.0.0]
 - Initial release
