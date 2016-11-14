@@ -29,16 +29,13 @@ import org.mini2Dx.minibus.MessageData;
  * A {@link MessageData} that stores an object
  */
 public class ObjectMessageData<T> implements MessageData {
-	private final String messageType;
 	private final T obj;
 	
 	/**
 	 * Constructor
-	 * @param messageType The message type
 	 * @param obj The object instance
 	 */
-	public ObjectMessageData(String messageType, T obj) {
-		this.messageType = messageType;
+	public ObjectMessageData(T obj) {
 		this.obj = obj;
 	}
 	

@@ -36,29 +36,22 @@ import org.mini2Dx.minibus.MessageData;
  * {@link List} instance
  */
 public class ListMessageData<T> implements List<T>, MessageData {
-	private final String messageType;
 	private final List<T> list;
 
 	/**
 	 * Constructs a {@link ListMessageData} backed by an {@link ArrayList}
-	 * 
-	 * @param messageType
-	 *            The message type
 	 */
-	public ListMessageData(String messageType) {
-		this(messageType, new ArrayList<T>(1));
+	public ListMessageData() {
+		this(new ArrayList<T>(1));
 	}
 
 	/**
 	 * Constructs a {@link ListMessageData}
 	 * 
-	 * @param messageType
-	 *            The message type
 	 * @param list
 	 *            The backing {@link List} instance
 	 */
-	public ListMessageData(String messageType, List<T> list) {
-		this.messageType = messageType;
+	public ListMessageData(List<T> list) {
 		this.list = list;
 	}
 

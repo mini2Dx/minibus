@@ -36,28 +36,21 @@ import org.mini2Dx.minibus.MessageData;
  */
 public class MapMessageData<K, V> implements Map<K, V>, MessageData {
 	private final Map<K, V> hashMap;
-	private final String messageType;
 
 	/**
 	 * Constructs a new {@link MapMessageData} backed by a {@link HashMap}
-	 * 
-	 * @param messageType
-	 *            The message type
 	 */
-	public MapMessageData(String messageType) {
-		this(messageType, new HashMap<K, V>());
+	public MapMessageData() {
+		this(new HashMap<K, V>());
 	}
 
 	/**
 	 * Constructs a new {@link MapMessageData}
 	 * 
-	 * @param messageType
-	 *            The message type
 	 * @param hashMap
 	 *            The backing {@link Map} instance
 	 */
-	public MapMessageData(String messageType, Map<K, V> hashMap) {
-		this.messageType = messageType;
+	public MapMessageData(Map<K, V> hashMap) {
 		this.hashMap = hashMap;
 	}
 

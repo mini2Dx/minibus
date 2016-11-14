@@ -35,25 +35,20 @@ import org.mini2Dx.minibus.MessageData;
  * {@link Set} instance
  */
 public class SetMessageData<T> implements Set<T>, MessageData {
-	private final String messageType;
 	private final Set<T> set;
 
 	/**
 	 * Constructs a {@link SetMessageData} backed by a {@link HashSet}
-	 * @param messageType The message type
 	 */
-	public SetMessageData(String messageType) {
-		this(messageType, new HashSet<T>());
+	public SetMessageData() {
+		this(new HashSet<T>());
 	}
 
 	/**
 	 * Constructs a {@link SetMessageData}
-	 * @param messageType The message type
 	 * @param set The backing {@link Set} instance
 	 */
-	public SetMessageData(String messageType, Set<T> set) {
-		super();
-		this.messageType = messageType;
+	public SetMessageData(Set<T> set) {
 		this.set = set;
 	}
 
