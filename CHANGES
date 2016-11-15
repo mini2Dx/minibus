@@ -1,3 +1,6 @@
+[1.1.1]
+- Provided MessageData implementations no longer require message type
+
 [1.1.0]
 - Query messages can now optionally require direct responses
 
