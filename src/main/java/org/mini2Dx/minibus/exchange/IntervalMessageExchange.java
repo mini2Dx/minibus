@@ -40,10 +40,10 @@ public class IntervalMessageExchange extends MessageExchange {
 	 * Constructor
 	 * @param interval The interval between processing {@link MessageData}s (in seconds)
 	 * @param messageBus The {@link MessageBus} that created this {@link IntervalMessageExchange}
-	 * @param messageHandler The {@link MessageHandler} to send messages to
+	 * @param messageHandlers The {@link MessageHandler} instances to send messages to
 	 */
-	public IntervalMessageExchange(float interval, MessageBus messageBus, MessageHandler messageHandler) {
-		super(messageBus, messageHandler);
+	public IntervalMessageExchange(float interval, MessageBus messageBus, MessageHandler... messageHandlers) {
+		super(messageBus, messageHandlers);
 		this.interval = interval;
 	}
 

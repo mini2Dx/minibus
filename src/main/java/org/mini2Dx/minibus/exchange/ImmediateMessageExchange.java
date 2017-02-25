@@ -35,8 +35,8 @@ import org.mini2Dx.minibus.MessageHandler;
  */
 public class ImmediateMessageExchange extends MessageExchange {
 
-	public ImmediateMessageExchange(MessageBus messageBus, MessageHandler messageHandler) {
-		super(messageBus, messageHandler);
+	public ImmediateMessageExchange(MessageBus messageBus, MessageHandler... messageHandlers) {
+		super(messageBus, messageHandlers);
 	}
 
 	@Override

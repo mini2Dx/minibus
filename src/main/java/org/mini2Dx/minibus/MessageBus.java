@@ -71,13 +71,13 @@ public class MessageBus {
 	 * Creates a {@link ImmediateMessageExchange} that processes messages
 	 * immediately when they are received
 	 * 
-	 * @param messageHandler
-	 *            The {@link MessageHandler} for processing messages received by
+	 * @param messageHandlers
+	 *            The {@link MessageHandler} instances for processing messages received by
 	 *            the {@link MessageExchange}
 	 * @return A new {@link ImmediateMessageExchange}
 	 */
-	public MessageExchange createImmediateExchange(MessageHandler messageHandler) {
-		ImmediateMessageExchange result = new ImmediateMessageExchange(this, messageHandler);
+	public MessageExchange createImmediateExchange(MessageHandler... messageHandlers) {
+		ImmediateMessageExchange result = new ImmediateMessageExchange(this, messageHandlers);
 		exchangers.add(result);
 		return result;
 	}
@@ -86,16 +86,16 @@ public class MessageBus {
 	 * Creates a {@link IntervalMessageExchange} that processes messages after a
 	 * certain amount of time has elapsed.
 	 * 
-	 * @param messageHandler
-	 *            The {@link MessageHandler} for processing messages received by
-	 *            the {@link MessageExchange}
 	 * @param interval
 	 *            The interval between processing {@link MessageData}s (in
 	 *            seconds)
+	 * @param messageHandlers
+	 *            The {@link MessageHandler} instances for processing messages received by
+	 *            the {@link MessageExchange}
 	 * @return A new {@link IntervalMessageExchange}
 	 */
-	public MessageExchange createIntervalExchange(MessageHandler messageHandler, float interval) {
-		IntervalMessageExchange result = new IntervalMessageExchange(interval, this, messageHandler);
+	public MessageExchange createIntervalExchange(float interval, MessageHandler messageHandlers) {
+		IntervalMessageExchange result = new IntervalMessageExchange(interval, this, messageHandlers);
 		exchangers.add(result);
 		return result;
 	}
@@ -104,13 +104,13 @@ public class MessageBus {
 	 * Creates a {@link OnUpdateMessageExchange} that processes messages when
 	 * {@link MessageBus#update(float)} is called
 	 * 
-	 * @param messageHandler
-	 *            The {@link MessageHandler} for processing messages received by
+	 * @param messageHandlers
+	 *            The {@link MessageHandler} instances for processing messages received by
 	 *            the {@link MessageExchange}
 	 * @return A new {@link OnUpdateMessageExchange}
 	 */
-	public MessageExchange createOnUpdateExchange(MessageHandler messageHandler) {
-		OnUpdateMessageExchange result = new OnUpdateMessageExchange(this, messageHandler);
+	public MessageExchange createOnUpdateExchange(MessageHandler... messageHandlers) {
+		OnUpdateMessageExchange result = new OnUpdateMessageExchange(this, messageHandlers);
 		exchangers.add(result);
 		return result;
 	}
@@ -120,13 +120,13 @@ public class MessageBus {
 	 * its own {@link Thread}. The exchanger/thread can be stopped by calling
 	 * {@link MessageExchange#dispose()}
 	 * 
-	 * @param messageHandler
-	 *            The {@link MessageHandler} for processing messages received by
+	 * @param messageHandlers
+	 *            The {@link MessageHandler} instances for processing messages received by
 	 *            the {@link MessageExchange}
 	 * @return A new {@link ConcurrentMessageExchange} running on its own thread
 	 */
-	public MessageExchange createConcurrentExchange(MessageHandler messageHandler) {
-		ConcurrentMessageExchange result = new ConcurrentMessageExchange(this, messageHandler);
+	public MessageExchange createConcurrentExchange(MessageHandler... messageHandlers) {
+		ConcurrentMessageExchange result = new ConcurrentMessageExchange(this, messageHandlers);
 		exchangers.add(result);
 		return result;
 	}

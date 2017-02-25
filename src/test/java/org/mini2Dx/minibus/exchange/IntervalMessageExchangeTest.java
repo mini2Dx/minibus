@@ -39,7 +39,7 @@ public class IntervalMessageExchangeTest {
 
 	private final MessageBus messageBus = new MessageBus();
 	private final DummyMessageHandler messageHandler = new DummyMessageHandler();
-	private final MessageExchange exchange = messageBus.createIntervalExchange(messageHandler, DELAY);
+	private final MessageExchange exchange = messageBus.createIntervalExchange(DELAY, messageHandler);
 
 	@After
 	public void teardown() {

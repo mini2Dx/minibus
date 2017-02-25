@@ -23,6 +23,8 @@
  */
 package org.mini2Dx.minibus;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,9 +39,10 @@ public abstract class MessageExchange {
 	private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
 
 	protected final BlockingQueue<MessageTransmission> messageQueue = new LinkedBlockingQueue<MessageTransmission>();
+	protected final List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>(1);
+	
 	protected final MessageBus messageBus;
 	protected final MessageTransmissionPool messageTransmissionPool;
-	protected final MessageHandler messageHandler;
 
 	private final int id;
 
@@ -49,16 +52,19 @@ public abstract class MessageExchange {
 	 * @param messageBus
 	 *            The {@link MessageBus} that this {@link MessageExchange}
 	 *            belongs to
-	 * @param messageHandler
-	 *            The {@link MessageHandler} to notify when {@link MessageData}s
+	 * @param messageHandlers
+	 *            The {@link MessageHandler} instances to notify when {@link MessageData}s
 	 *            are received
 	 */
-	public MessageExchange(MessageBus messageBus, MessageHandler messageHandler) {
+	public MessageExchange(MessageBus messageBus, MessageHandler... messageHandlers) {
 		id = ID_GENERATOR.incrementAndGet();
 
 		this.messageBus = messageBus;
 		this.messageTransmissionPool = messageBus.transmissionPool;
-		this.messageHandler = messageHandler;
+		
+		for(MessageHandler messageHandler : messageHandlers) {
+			this.messageHandlers.add(messageHandler);
+		}
 	}
 
 	/**
@@ -95,8 +101,10 @@ public abstract class MessageExchange {
 			return;
 		}
 		if (isImmediate()) {
-			messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(),
-					this, messageTransmission.getMessage());
+			for(MessageHandler messageHandler : messageHandlers) {
+				messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(),
+						this, messageTransmission.getMessage());
+			}
 		} else {
 			messageQueue.offer(messageTransmission);
 		}
@@ -161,8 +169,10 @@ public abstract class MessageExchange {
 	protected void flush() {
 		while (!messageQueue.isEmpty()) {
 			MessageTransmission messageTransmission = messageQueue.poll();
-			messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(),
-					this, messageTransmission.getMessage());
+			for(MessageHandler messageHandler : messageHandlers) {
+				messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(),
+						this, messageTransmission.getMessage());
+			}
 			messageTransmission.release();
 		}
 	}

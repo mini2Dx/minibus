@@ -1,3 +1,6 @@
+[1.2.0-SNAPSHOT]
+- MessageExchange instances can now contain multiple MessageHandlers
+
 [1.1.1]
 - Provided MessageData implementations no longer require message type
 

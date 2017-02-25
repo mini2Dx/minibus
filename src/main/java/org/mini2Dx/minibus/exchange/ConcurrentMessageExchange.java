@@ -39,8 +39,8 @@ import org.mini2Dx.minibus.transmission.MessageTransmission;
 public class ConcurrentMessageExchange extends MessageExchange implements Runnable {
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
-	public ConcurrentMessageExchange(MessageBus messageBus, MessageHandler messageHandler) {
-		super(messageBus, messageHandler);
+	public ConcurrentMessageExchange(MessageBus messageBus, MessageHandler... messageHandlers) {
+		super(messageBus, messageHandlers);
 		new Thread(this).start();
 	}
 
@@ -60,7 +60,9 @@ public class ConcurrentMessageExchange extends MessageExchange implements Runnab
 				if(messageTransmission.getSource() == null) {
 					return;
 				}
-				messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(), this, messageTransmission.getMessage());
+				for(MessageHandler messageHandler : messageHandlers) {
+					messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(), this, messageTransmission.getMessage());
+				}
 				messageTransmission.release();
 			} catch (InterruptedException e) {
 				e.printStackTrace();

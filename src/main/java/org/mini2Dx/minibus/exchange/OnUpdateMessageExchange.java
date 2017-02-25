@@ -33,8 +33,8 @@ import org.mini2Dx.minibus.MessageHandler;
  */
 public class OnUpdateMessageExchange extends MessageExchange {
 
-	public OnUpdateMessageExchange(MessageBus messageBus, MessageHandler messageHandler) {
-		super(messageBus, messageHandler);
+	public OnUpdateMessageExchange(MessageBus messageBus, MessageHandler... messageHandlers) {
+		super(messageBus, messageHandlers);
 	}
 
 	@Override
