@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mini2Dx.minibus.MessageData;
 import org.mini2Dx.minibus.MessageExchange;
+import org.mini2Dx.minibus.PooledMessageData;
 
 /**
  *
@@ -50,6 +51,9 @@ public class MessageTransmission {
 	
 	public void release() {
 		if(allocations.decrementAndGet() <= 0) {
+			if(messageData instanceof PooledMessageData) {
+				((PooledMessageData) messageData).release();
+			}
 			allocations.set(0);
 			transmissionPool.release(this);
 		}

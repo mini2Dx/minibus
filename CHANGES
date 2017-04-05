@@ -1,4 +1,5 @@
-[1.2.1-SNAPSHOT]
+[1.2.1]
+- Added PooledMessageData interface for implementing pooling
 
 [1.2.0]
 - MessageExchange instances can now contain multiple MessageHandlers
