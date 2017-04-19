@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 See AUTHORS file
+ * Copyright (c) 2017 See AUTHORS file
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,19 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.mini2Dx.minibus;
+package org.mini2Dx.minibus.pool;
+
+import org.mini2Dx.minibus.MessageData;
 
 /**
- * Provides an interface for implementing pooling of {@link MessageData}.
- * {@link PooledMessageData#release()} will be called once the message has been
- * transmitted to and processed by all {@link MessageExchange} instances.<br>
- * <br>
- * NOTE: minibus does not provide a pooling implementation.
+ * Base class for {@link MessageData} implementations that can be optionally
+ * pooled and managed by a {@link MessageDataPool} instance
  */
-public interface PooledMessageData extends MessageData {
+public class OptionallyPooledMessageData implements PooledMessageData {
+	private final MessageDataPool<PooledMessageData> pool;
 
 	/**
-	 * Releases this instance back to the pool
+	 * Non-pooled constructor
 	 */
-	public void release();
+	public OptionallyPooledMessageData() {
+		this(null);
+	}
+
+	/**
+	 * Pooled constructor
+	 * 
+	 * @param pool
+	 *            The {@link MessageDataPool} managing this instance
+	 */
+	public OptionallyPooledMessageData(MessageDataPool<PooledMessageData> pool) {
+		super();
+		this.pool = pool;
+	}
+
+	@Override
+	public void release() {
+		if (pool == null) {
+			return;
+		}
+		pool.release(this);
+	}
+
 }

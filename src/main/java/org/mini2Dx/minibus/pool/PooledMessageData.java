@@ -21,33 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.mini2Dx.minibus.messagedata.primitives;
+package org.mini2Dx.minibus.pool;
 
 import org.mini2Dx.minibus.MessageData;
-import org.mini2Dx.minibus.pool.MessageDataPool;
-import org.mini2Dx.minibus.pool.OptionallyPooledMessageData;
-import org.mini2Dx.minibus.pool.PooledMessageData;
+import org.mini2Dx.minibus.MessageExchange;
 
 /**
- * Utility implementation of {@link MessageData} for sending short array values
+ * Provides an interface for implementing pooling of {@link MessageData}.
+ * {@link PooledMessageData#release()} will be called once the message has been
+ * transmitted to and processed by all {@link MessageExchange} instances.
  */
-public class ShortArrayMessageData extends OptionallyPooledMessageData {
-	private short [] value;
+public interface PooledMessageData extends MessageData {
 
-	public ShortArrayMessageData(short [] value) {
-		super();
-		this.value = value;
-	}
-
-	public ShortArrayMessageData(MessageDataPool<PooledMessageData> pool) {
-		super(pool);
-	}
-	
-	public short [] getValue() {
-		return value;
-	}
-
-	public void setValue(short[] value) {
-		this.value = value;
-	}
+	/**
+	 * Releases this instance back to the pool
+	 */
+	public void release();
 }

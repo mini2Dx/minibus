@@ -24,19 +24,30 @@
 package org.mini2Dx.minibus.messagedata.primitives;
 
 import org.mini2Dx.minibus.MessageData;
+import org.mini2Dx.minibus.pool.MessageDataPool;
+import org.mini2Dx.minibus.pool.OptionallyPooledMessageData;
+import org.mini2Dx.minibus.pool.PooledMessageData;
 
 /**
  * Utility implementation of {@link MessageData} for sending boolean values
  */
-public class BooleanMessageData implements MessageData {
-	private final boolean value;
+public class BooleanMessageData extends OptionallyPooledMessageData {
+	private boolean value;
 
 	public BooleanMessageData(boolean value) {
 		super();
 		this.value = value;
 	}
+	
+	public BooleanMessageData(MessageDataPool<PooledMessageData> pool) {
+		super(pool);
+	}
 
 	public boolean getValue() {
 		return value;
+	}
+
+	public void setValue(boolean value) {
+		this.value = value;
 	}
 }

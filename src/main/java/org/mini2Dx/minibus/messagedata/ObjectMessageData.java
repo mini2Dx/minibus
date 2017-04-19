@@ -24,23 +24,38 @@
 package org.mini2Dx.minibus.messagedata;
 
 import org.mini2Dx.minibus.MessageData;
+import org.mini2Dx.minibus.pool.MessageDataPool;
+import org.mini2Dx.minibus.pool.OptionallyPooledMessageData;
+import org.mini2Dx.minibus.pool.PooledMessageData;
 
 /**
  * A {@link MessageData} that stores an object
  */
-public class ObjectMessageData<T> implements MessageData {
-	private final T obj;
+public class ObjectMessageData<T> extends OptionallyPooledMessageData {
+	private T obj;
 	
 	/**
-	 * Constructor
+	 * Constructs a non-pooled {@link ObjectMessageData} instance
 	 * @param obj The object instance
 	 */
 	public ObjectMessageData(T obj) {
+		super();
 		this.obj = obj;
+	}
+	
+	/**
+	 * Constructs a pooled {@link ObjectMessageData} instance
+	 * @param pool The {@link MessageDataPool} managing this instance
+	 */
+	public ObjectMessageData(MessageDataPool<PooledMessageData> pool) {
+		super(pool);
 	}
 	
 	public T getObject() {
 		return obj;
 	}
 
+	public void setObject(T obj) {
+		this.obj = obj;
+	}
 }

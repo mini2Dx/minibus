@@ -24,19 +24,30 @@
 package org.mini2Dx.minibus.messagedata.primitives;
 
 import org.mini2Dx.minibus.MessageData;
+import org.mini2Dx.minibus.pool.MessageDataPool;
+import org.mini2Dx.minibus.pool.OptionallyPooledMessageData;
+import org.mini2Dx.minibus.pool.PooledMessageData;
 
 /**
  * Utility implementation of {@link MessageData} for sending int array values
  */
-public class IntArrayMessageData implements MessageData {
-	private final int [] value;
+public class IntArrayMessageData extends OptionallyPooledMessageData {
+	private int [] value;
 
 	public IntArrayMessageData(int [] value) {
 		super();
 		this.value = value;
 	}
+	
+	public IntArrayMessageData(MessageDataPool<PooledMessageData> pool) {
+		super(pool);
+	}
 
 	public int [] getValue() {
 		return value;
+	}
+
+	public void setValue(int[] value) {
+		this.value = value;
 	}
 }

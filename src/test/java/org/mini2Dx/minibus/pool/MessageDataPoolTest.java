@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 See AUTHORS file
+ * Copyright (c) 2017 See AUTHORS file
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,33 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.mini2Dx.minibus.messagedata.primitives;
+package org.mini2Dx.minibus.pool;
 
-import org.mini2Dx.minibus.MessageData;
-import org.mini2Dx.minibus.pool.MessageDataPool;
-import org.mini2Dx.minibus.pool.OptionallyPooledMessageData;
-import org.mini2Dx.minibus.pool.PooledMessageData;
+import org.junit.Test;
+import org.mini2Dx.minibus.messagedata.ListMessageData;
+
+import junit.framework.Assert;
 
 /**
- * Utility implementation of {@link MessageData} for sending short array values
+ * Unit and integration tests for {@link MessageDataPool}
  */
-public class ShortArrayMessageData extends OptionallyPooledMessageData {
-	private short [] value;
-
-	public ShortArrayMessageData(short [] value) {
-		super();
-		this.value = value;
-	}
-
-	public ShortArrayMessageData(MessageDataPool<PooledMessageData> pool) {
-		super(pool);
+public class MessageDataPoolTest {
+	
+	@Test
+	public void testGetCurrentPoolSize() {
+		MessageDataPool<ListMessageData<String>> messageDataPool = new MessageDataPool<ListMessageData<String>>(new ListMessageData<String>());
+		Assert.assertEquals(MessageDataPool.DEFAULT_POOL_SIZE, messageDataPool.getCurrentPoolSize());
 	}
 	
-	public short [] getValue() {
-		return value;
-	}
-
-	public void setValue(short[] value) {
-		this.value = value;
+	@Test
+	public void testAllocateRelease() {
+		MessageDataPool<ListMessageData<String>> messageDataPool = new MessageDataPool<ListMessageData<String>>(new ListMessageData<String>());
+		
+		int startSize = messageDataPool.getCurrentPoolSize();
+		ListMessageData<String> result = messageDataPool.allocate();
+		Assert.assertEquals(startSize - 1, messageDataPool.getCurrentPoolSize());
+		result.release();
+		Assert.assertEquals(startSize, messageDataPool.getCurrentPoolSize());
 	}
 }

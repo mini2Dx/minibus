@@ -24,19 +24,30 @@
 package org.mini2Dx.minibus.messagedata.primitives;
 
 import org.mini2Dx.minibus.MessageData;
+import org.mini2Dx.minibus.pool.MessageDataPool;
+import org.mini2Dx.minibus.pool.OptionallyPooledMessageData;
+import org.mini2Dx.minibus.pool.PooledMessageData;
 
 /**
  * Utility implementation of {@link MessageData} for sending float values
  */
-public class FloatMessageData implements MessageData {
-	private final float value;
+public class FloatMessageData extends OptionallyPooledMessageData {
+	private float value;
 
 	public FloatMessageData(float value) {
 		super();
 		this.value = value;
 	}
+	
+	public FloatMessageData(MessageDataPool<PooledMessageData> pool) {
+		super(pool);
+	}
 
 	public float getValue() {
 		return value;
+	}
+
+	public void setValue(float value) {
+		this.value = value;
 	}
 }

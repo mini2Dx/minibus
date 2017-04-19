@@ -30,29 +30,43 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.mini2Dx.minibus.MessageData;
+import org.mini2Dx.minibus.pool.OptionallyPooledMessageData;
+import org.mini2Dx.minibus.pool.MessageDataPool;
+import org.mini2Dx.minibus.pool.PooledMessageData;
 
 /**
- * A {@link MessageData} that also implements the {@link List} message, backed by a
+ * A {@link MessageData} instance that also implements the {@link List} message, backed by a
  * {@link List} instance
  */
-public class ListMessageData<T> implements List<T>, MessageData {
+public class ListMessageData<T> extends OptionallyPooledMessageData implements List<T> {
 	private final List<T> list;
 
 	/**
-	 * Constructs a {@link ListMessageData} backed by an {@link ArrayList}
+	 * Constructs a non-pooled {@link ListMessageData} instance backed by an {@link ArrayList}
 	 */
 	public ListMessageData() {
 		this(new ArrayList<T>(1));
 	}
 
 	/**
-	 * Constructs a {@link ListMessageData}
+	 * Constructs a non-pooled {@link ListMessageData} instance
 	 * 
 	 * @param list
 	 *            The backing {@link List} instance
 	 */
 	public ListMessageData(List<T> list) {
+		super();
 		this.list = list;
+	}
+	
+	/**
+	 * Constructs a pooled {@link ListMessageData} instance backed by an {@link ArrayList}
+	 * 
+	 * @param pool The {@link MessageDataPool} managing this instance
+	 */
+	public ListMessageData(MessageDataPool<PooledMessageData> pool) {
+		super(pool);
+		this.list = new ArrayList<T>(1);
 	}
 
 	@Override

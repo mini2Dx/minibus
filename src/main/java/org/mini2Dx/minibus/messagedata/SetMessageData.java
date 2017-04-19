@@ -29,27 +29,40 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.mini2Dx.minibus.MessageData;
+import org.mini2Dx.minibus.pool.OptionallyPooledMessageData;
+import org.mini2Dx.minibus.pool.MessageDataPool;
+import org.mini2Dx.minibus.pool.PooledMessageData;
 
 /**
- * A {@link MessageData} that also implements the {@link Set} interface, backed by a
+ * A {@link MessageData} instance that also implements the {@link Set} interface, backed by a
  * {@link Set} instance
  */
-public class SetMessageData<T> implements Set<T>, MessageData {
+public class SetMessageData<T> extends OptionallyPooledMessageData implements Set<T> {
 	private final Set<T> set;
 
 	/**
-	 * Constructs a {@link SetMessageData} backed by a {@link HashSet}
+	 * Constructs a non-pooled {@link SetMessageData} instance backed by a {@link HashSet}
 	 */
 	public SetMessageData() {
 		this(new HashSet<T>());
 	}
 
 	/**
-	 * Constructs a {@link SetMessageData}
+	 * Constructs a non-pooled {@link SetMessageData} instance
 	 * @param set The backing {@link Set} instance
 	 */
 	public SetMessageData(Set<T> set) {
+		super();
 		this.set = set;
+	}
+	
+	/**
+	 * Constructs a pooled {@link SetMessageData} instance
+	 * @param pool The {@link MessageDataPool} managing this instance
+	 */
+	public SetMessageData(MessageDataPool<PooledMessageData> pool) {
+		super(pool);
+		this.set = new HashSet<T>();
 	}
 
 	@Override

@@ -29,29 +29,43 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mini2Dx.minibus.MessageData;
+import org.mini2Dx.minibus.pool.OptionallyPooledMessageData;
+import org.mini2Dx.minibus.pool.MessageDataPool;
+import org.mini2Dx.minibus.pool.PooledMessageData;
 
 /**
- * A {@link MessageData} that also implements the {@link Map} interface, backed by a
+ * A {@link MessageData} instance that also implements the {@link Map} interface, backed by a
  * {@link Map} instance.
  */
-public class MapMessageData<K, V> implements Map<K, V>, MessageData {
+public class MapMessageData<K, V> extends OptionallyPooledMessageData implements Map<K, V> {
 	private final Map<K, V> hashMap;
 
 	/**
-	 * Constructs a new {@link MapMessageData} backed by a {@link HashMap}
+	 * Constructs a non-pooled {@link MapMessageData} instance backed by a {@link HashMap}
 	 */
 	public MapMessageData() {
 		this(new HashMap<K, V>());
 	}
 
 	/**
-	 * Constructs a new {@link MapMessageData}
+	 * Constructs a non-pooled {@link MapMessageData} instance
 	 * 
 	 * @param hashMap
 	 *            The backing {@link Map} instance
 	 */
 	public MapMessageData(Map<K, V> hashMap) {
+		super();
 		this.hashMap = hashMap;
+	}
+	
+	/**
+	 * Constructs a pooled {@link MapMessageData} instance
+	 * 
+	 * @param pool The {@link MessageDataPool} managing this instance
+	 */
+	public MapMessageData(MessageDataPool<PooledMessageData> pool) {
+		super(pool);
+		this.hashMap = new HashMap<K, V>();
 	}
 
 	@Override

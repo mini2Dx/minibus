@@ -1,4 +1,6 @@
-[1.2.2-SNAPSHOT]
+[1.3.0-SNAPSHOT]
+- Added default MessageDataPool implementation
+- All utility MessageData implementations can now optionally be pooled instances
 
 [1.2.1]
 - Added PooledMessageData interface for implementing pooling
