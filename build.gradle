@@ -62,7 +62,7 @@ dependencies {
 task docs(type: Javadoc) {
 	source project.sourceSets.main.allJava
 	classpath = files(project.sourceSets.main.compileClasspath)
-	destinationDir = new File(project.projectDir, 'docs')
+	destinationDir = new File(project.projectDir, "docs/javadocs/$version")
 }
 docs.dependsOn build
 
