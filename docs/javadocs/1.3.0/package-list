@@ -1,0 +1,9 @@
+org.mini2Dx.minibus
+org.mini2Dx.minibus.exception
+org.mini2Dx.minibus.exchange
+org.mini2Dx.minibus.exchange.query
+org.mini2Dx.minibus.handler
+org.mini2Dx.minibus.messagedata
+org.mini2Dx.minibus.messagedata.primitives
+org.mini2Dx.minibus.pool
+org.mini2Dx.minibus.transmission
