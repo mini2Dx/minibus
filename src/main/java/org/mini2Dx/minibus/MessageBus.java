@@ -23,6 +23,8 @@
  */
 package org.mini2Dx.minibus;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -39,7 +41,9 @@ import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
  * A message bus to publishing {@link MessageData}s
  */
 public class MessageBus {
-	final List<MessageExchange> exchangers = new CopyOnWriteArrayList<MessageExchange>();
+	public static boolean USE_JAVA_UTIL_CONCURRENT = true;
+
+	final List<MessageExchange> exchangers;
 	final MessageTransmissionPool transmissionPool = new MessageTransmissionPool();
 
 	private final MessageExchange anonymousExchange;
@@ -49,6 +53,12 @@ public class MessageBus {
 	 * Constructor
 	 */
 	public MessageBus() {
+		if(USE_JAVA_UTIL_CONCURRENT) {
+			exchangers = new CopyOnWriteArrayList<MessageExchange>();
+		} else {
+			exchangers = Collections.synchronizedList(new ArrayList<MessageExchange>());
+		}
+
 		anonymousExchange = new AnonymousMessageExchange(this);
 		queryMessageExchangePool = new QueryMessageExchangePool(this, exchangers);
 	}

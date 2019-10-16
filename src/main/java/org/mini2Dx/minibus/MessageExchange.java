@@ -23,14 +23,14 @@
  */
 package org.mini2Dx.minibus;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mini2Dx.minibus.transmission.MessageTransmission;
 import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
+import org.mini2Dx.minibus.transmission.SynchronizedQueue;
 
 /**
  * Sends and receives {@link MessageData}s - base class for implementations.
@@ -38,11 +38,11 @@ import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
 public abstract class MessageExchange {
 	private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
 
-	protected final BlockingQueue<MessageTransmission> messageQueue = new LinkedBlockingQueue<MessageTransmission>();
 	protected final List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>(1);
 	
 	protected final MessageBus messageBus;
 	protected final MessageTransmissionPool messageTransmissionPool;
+	protected final Queue<MessageTransmission> messageQueue;
 
 	private final int id;
 
@@ -61,6 +61,12 @@ public abstract class MessageExchange {
 
 		this.messageBus = messageBus;
 		this.messageTransmissionPool = messageBus.transmissionPool;
+
+		if(MessageBus.USE_JAVA_UTIL_CONCURRENT) {
+			messageQueue = new LinkedBlockingQueue<MessageTransmission>();
+		} else {
+			messageQueue = new SynchronizedQueue<MessageTransmission>();
+		}
 		
 		for(MessageHandler messageHandler : messageHandlers) {
 			this.messageHandlers.add(messageHandler);

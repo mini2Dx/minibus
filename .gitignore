@@ -12,3 +12,5 @@ bin/
 .project
 .classpath
 rebel.xml
+.idea/
+out/

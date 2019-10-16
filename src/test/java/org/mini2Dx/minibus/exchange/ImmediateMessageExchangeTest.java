@@ -33,12 +33,20 @@ import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 /**
  * Integration tests for {@link ImmediateMessageExchange}
  */
-public class ImmediateMessageExchangeTest {
+public abstract class ImmediateMessageExchangeTest {
 	private static final String MESSAGE_TYPE = "message";
 	
-	private final MessageBus messageBus = new MessageBus();
-	private final DummyMessageHandler messageHandler = new DummyMessageHandler();
-	private final MessageExchange exchange = messageBus.createImmediateExchange(messageHandler);
+	private final MessageBus messageBus;
+	private final DummyMessageHandler messageHandler;
+	private final MessageExchange exchange;
+
+	public ImmediateMessageExchangeTest(boolean useJavaUtilConcurrent) {
+		MessageBus.USE_JAVA_UTIL_CONCURRENT = useJavaUtilConcurrent;
+
+		messageBus = new MessageBus();
+		messageHandler = new DummyMessageHandler();
+		exchange = messageBus.createImmediateExchange(messageHandler);
+	}
 	
 	@After
 	public void teardown() {

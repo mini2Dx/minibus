@@ -23,6 +23,7 @@
  */
 package org.mini2Dx.minibus.exchange;
 
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.mini2Dx.minibus.MessageBus;
@@ -56,7 +57,19 @@ public class ConcurrentMessageExchange extends MessageExchange implements Runnab
 	public void run() {
 		while (running.get()) {
 			try {
-				MessageTransmission messageTransmission = messageQueue.take();
+				MessageTransmission messageTransmission = null;
+
+				if(MessageBus.USE_JAVA_UTIL_CONCURRENT) {
+					messageTransmission = ((LinkedBlockingQueue<MessageTransmission>) messageQueue).take();
+				} else {
+					while(messageQueue.isEmpty()) {
+						try {
+							Thread.sleep(16);
+						} catch (Exception e) {}
+					}
+					messageTransmission = messageQueue.poll();
+				}
+
 				if(messageTransmission.getSource() == null) {
 					return;
 				}
@@ -73,12 +86,8 @@ public class ConcurrentMessageExchange extends MessageExchange implements Runnab
 	@Override
 	public void dispose() {
 		running.set(false);
-		try {
-			//Use null to signal thread to stop
-			messageQueue.put(new MessageTransmission(null));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		//Use null to signal thread to stop
+		messageQueue.offer(new MessageTransmission(null));
 		super.dispose();
 	}
 }
