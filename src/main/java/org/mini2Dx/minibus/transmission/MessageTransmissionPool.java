@@ -23,6 +23,8 @@
  */
 package org.mini2Dx.minibus.transmission;
 
+import org.mini2Dx.minibus.MessageBus;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -30,8 +32,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * An object pool of {@link MessageTransmission} instances to reduce memory allocations
  */
 public class MessageTransmissionPool {
-	private final Queue<MessageTransmission> pool = new ConcurrentLinkedQueue<MessageTransmission>();
-	
+	private final Queue<MessageTransmission> pool;
+
+	public MessageTransmissionPool() {
+		if(MessageBus.USE_JAVA_UTIL_CONCURRENT) {
+			pool = new ConcurrentLinkedQueue<MessageTransmission>();
+		} else {
+			pool = new SynchronizedQueue<MessageTransmission>();
+		}
+	}
+
 	/**
 	 * Allocates a new {@link MessageTransmission} from the pool
 	 * @return

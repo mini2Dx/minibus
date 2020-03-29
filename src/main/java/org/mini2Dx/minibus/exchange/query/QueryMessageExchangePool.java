@@ -26,24 +26,32 @@ package org.mini2Dx.minibus.exchange.query;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageExchange;
 import org.mini2Dx.minibus.MessageHandler;
 import org.mini2Dx.minibus.handler.MessageHandlerChain;
+import org.mini2Dx.minibus.transmission.MessageTransmission;
+import org.mini2Dx.minibus.transmission.SynchronizedQueue;
 
 /**
  * An object pool for {@link QueryMessageExchange} instances
  */
 public class QueryMessageExchangePool {
-	private final Queue<QueryMessageExchange> pool = new ConcurrentLinkedQueue<QueryMessageExchange>();
-	
 	private final MessageBus messageBus;
 	private final List<MessageExchange> exchangers;
+	private final Queue<QueryMessageExchange> pool;
 	
 	public QueryMessageExchangePool(MessageBus messageBus, List<MessageExchange> exchangers) {
 		this.messageBus = messageBus;
 		this.exchangers = exchangers;
+
+		if(MessageBus.USE_JAVA_UTIL_CONCURRENT) {
+			pool = new ConcurrentLinkedQueue<QueryMessageExchange>();
+		} else {
+			pool = new SynchronizedQueue<QueryMessageExchange>();
+		}
 	}
 	
 	public QueryMessageExchange allocate(MessageHandler messageHandler, String responseMessageType, boolean requiresDirectResponse) {

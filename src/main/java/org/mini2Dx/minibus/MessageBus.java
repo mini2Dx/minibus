@@ -41,7 +41,7 @@ import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
  * A message bus to publishing {@link MessageData}s
  */
 public class MessageBus {
-	public static boolean USE_JAVA_UTIL_CONCURRENT = true;
+	public static boolean USE_JAVA_UTIL_CONCURRENT = false;
 
 	final List<MessageExchange> exchangers;
 	final MessageTransmissionPool transmissionPool = new MessageTransmissionPool();

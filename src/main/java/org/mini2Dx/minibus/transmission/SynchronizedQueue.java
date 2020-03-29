@@ -23,13 +23,10 @@
  */
 package org.mini2Dx.minibus.transmission;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class SynchronizedQueue<T> implements Queue<T> {
-	private final Queue<T> queue = new LinkedList<T>();
+	private final Queue<T> queue = new ArrayDeque<T>(32);
 
 	@Override
 	public int size() {
