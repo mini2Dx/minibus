@@ -33,7 +33,7 @@ import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 /**
  * Integration tests for {@link IntervalMessageExchange}
  */
-public abstract class IntervalMessageExchangeTest {
+public class IntervalMessageExchangeTest {
 	private static final String MESSAGE_TYPE = "message";
 	private static final float DELAY = 0.5f;
 
@@ -41,9 +41,7 @@ public abstract class IntervalMessageExchangeTest {
 	private final DummyMessageHandler messageHandler;
 	private final MessageExchange exchange;
 
-	public IntervalMessageExchangeTest(boolean useJavaUtilConcurrent) {
-		MessageBus.USE_JAVA_UTIL_CONCURRENT = useJavaUtilConcurrent;
-
+	public IntervalMessageExchangeTest() {
 		messageBus = new MessageBus();
 		messageHandler = new DummyMessageHandler();
 		exchange = messageBus.createIntervalExchange(DELAY, messageHandler);

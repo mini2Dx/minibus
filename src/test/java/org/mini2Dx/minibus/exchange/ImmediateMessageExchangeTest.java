@@ -33,16 +33,14 @@ import org.mini2Dx.minibus.dummy.DummyMessageHandler;
 /**
  * Integration tests for {@link ImmediateMessageExchange}
  */
-public abstract class ImmediateMessageExchangeTest {
+public class ImmediateMessageExchangeTest {
 	private static final String MESSAGE_TYPE = "message";
 	
 	private final MessageBus messageBus;
 	private final DummyMessageHandler messageHandler;
 	private final MessageExchange exchange;
 
-	public ImmediateMessageExchangeTest(boolean useJavaUtilConcurrent) {
-		MessageBus.USE_JAVA_UTIL_CONCURRENT = useJavaUtilConcurrent;
-
+	public ImmediateMessageExchangeTest() {
 		messageBus = new MessageBus();
 		messageHandler = new DummyMessageHandler();
 		exchange = messageBus.createImmediateExchange(messageHandler);

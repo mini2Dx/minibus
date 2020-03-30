@@ -59,16 +59,12 @@ public class ConcurrentMessageExchange extends MessageExchange implements Runnab
 			try {
 				MessageTransmission messageTransmission = null;
 
-				if(MessageBus.USE_JAVA_UTIL_CONCURRENT) {
-					messageTransmission = ((LinkedBlockingQueue<MessageTransmission>) messageQueue).take();
-				} else {
-					while(messageQueue.isEmpty()) {
-						try {
-							Thread.sleep(16);
-						} catch (Exception e) {}
-					}
-					messageTransmission = messageQueue.poll();
+				while(messageQueue.isEmpty()) {
+					try {
+						Thread.sleep(16);
+					} catch (Exception e) {}
 				}
+				messageTransmission = messageQueue.poll();
 
 				if(messageTransmission.getSource() == null) {
 					return;
@@ -77,7 +73,7 @@ public class ConcurrentMessageExchange extends MessageExchange implements Runnab
 					messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(), this, messageTransmission.getMessage());
 				}
 				messageTransmission.release();
-			} catch (InterruptedException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}

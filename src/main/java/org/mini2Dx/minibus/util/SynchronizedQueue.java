@@ -21,19 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.mini2Dx.minibus.transmission;
+package org.mini2Dx.minibus.util;
+
+import org.mini2Dx.minibus.MessageBus;
 
 import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class SynchronizedQueue<T> implements Queue<T> {
-	private final Queue<T> queue = new ArrayDeque<T>(32);
+	private ReadWriteLock lock = MessageBus.LOCK_PROVIDER.newReadWriteLock();
+	private final Queue<T> queue = new ArrayDeque<T>();
 
 	@Override
 	public int size() {
 		int result = 0;
-		synchronized(queue) {
-			result = queue.size();
-		}
+		lock.readLock().lock();
+		result = queue.size();
+		lock.readLock().unlock();
 		return result;
 	}
 
@@ -45,98 +49,94 @@ public class SynchronizedQueue<T> implements Queue<T> {
 	@Override
 	public boolean contains(Object o) {
 		boolean result = false;
-		synchronized(queue) {
-			result = queue.contains(o);
-		}
+		lock.readLock().lock();
+		result = queue.contains(o);
+		lock.readLock().unlock();
 		return result;
 	}
 
 	@Override
 	public Iterator<T> iterator() {
-		Iterator<T> result = null;
-		synchronized(queue) {
-			result = queue.iterator();
-		}
-		return result;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Object[] toArray() {
 		Object [] result = null;
-		synchronized(queue) {
-			result = queue.toArray();
-		}
+		lock.readLock().lock();
+		result = queue.toArray();
+		lock.readLock().unlock();
 		return result;
 	}
 
 	@Override
 	public <T1> T1[] toArray(T1[] a) {
 		T1[] result = null;
-		synchronized(queue) {
-			result = queue.toArray(a);
-		}
+		lock.readLock().lock();
+		result = queue.toArray(a);
+		lock.readLock().unlock();
 		return result;
 	}
 
 	@Override
 	public boolean add(T t) {
 		boolean result = false;
-		synchronized(queue) {
-			result = queue.add(t);
-		}
+		lock.writeLock().lock();
+		result = queue.add(t);
+		lock.writeLock().unlock();
 		return result;
 	}
 
 	@Override
 	public boolean remove(Object o) {
 		boolean result = false;
-		synchronized(queue) {
-			result = queue.remove(o);
-		}
+		lock.writeLock().lock();
+		result = queue.remove(o);
+		lock.writeLock().unlock();
 		return result;
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c) {
 		boolean result = false;
-		synchronized(queue) {
-			result = queue.containsAll(c);
-		}
+		lock.readLock().lock();
+		result = queue.containsAll(c);
+		lock.readLock().unlock();
 		return result;
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends T> c) {
 		boolean result = false;
-		synchronized(queue) {
-			result = queue.addAll(c);
-		}
+		lock.writeLock().lock();
+		result = queue.addAll(c);
+		lock.writeLock().unlock();
 		return result;
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
 		boolean result = false;
-		synchronized(queue) {
-			result = queue.removeAll(c);
-		}
+		lock.writeLock().lock();
+		result = queue.removeAll(c);
+		lock.writeLock().unlock();
 		return result;
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c) {
 		boolean result = false;
-		synchronized(queue) {
-			result = queue.retainAll(c);
-		}
+		lock.writeLock().lock();
+		result = queue.retainAll(c);
+		lock.writeLock().unlock();
 		return result;
 	}
 
 	@Override
 	public void clear() {
-		synchronized(queue) {
-			queue.clear();
-		}
+		lock.writeLock().lock();
+		queue.clear();
+		lock.writeLock().unlock();
 	}
 
 	@Override
@@ -147,36 +147,32 @@ public class SynchronizedQueue<T> implements Queue<T> {
 	@Override
 	public T remove() {
 		T result = null;
-		synchronized(queue) {
-			result = queue.remove();
-		}
+		lock.writeLock().lock();
+		result = queue.remove();
+		lock.writeLock().unlock();
 		return result;
 	}
 
 	@Override
 	public T poll() {
 		T result = null;
-		synchronized(queue) {
-			result = queue.poll();
-		}
+		lock.writeLock().lock();
+		result = queue.poll();
+		lock.writeLock().unlock();
 		return result;
 	}
 
 	@Override
 	public T element() {
 		T result = null;
-		synchronized(queue) {
-			result = queue.element();
-		}
+		lock.readLock().lock();
+		result = queue.element();
+		lock.readLock().unlock();
 		return result;
 	}
 
 	@Override
 	public T peek() {
-		T result = null;
-		synchronized(queue) {
-			result = queue.peek();
-		}
-		return result;
+		return element();
 	}
 }

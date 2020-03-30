@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 See AUTHORS file
+ * Copyright (c) 2020 See AUTHORS file
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.mini2Dx.minibus.exchange;
+package org.mini2Dx.minibus.util;
 
-public class DefaultIntervalMessageExchangeTest extends IntervalMessageExchangeTest {
-	public DefaultIntervalMessageExchangeTest() {
-		super(true);
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+public class JvmLockProvider implements LockProvider {
+
+	@Override
+	public Lock newLock() {
+		return new ReentrantLock();
+	}
+
+	@Override
+	public ReadWriteLock newReadWriteLock() {
+		return new ReentrantReadWriteLock();
 	}
 }

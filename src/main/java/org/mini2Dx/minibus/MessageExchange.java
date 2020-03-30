@@ -23,14 +23,14 @@
  */
 package org.mini2Dx.minibus;
 
-import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.mini2Dx.minibus.transmission.MessageTransmission;
 import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
-import org.mini2Dx.minibus.transmission.SynchronizedQueue;
+import org.mini2Dx.minibus.util.SynchronizedQueue;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Sends and receives {@link MessageData}s - base class for implementations.
@@ -38,11 +38,11 @@ import org.mini2Dx.minibus.transmission.SynchronizedQueue;
 public abstract class MessageExchange {
 	private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
 
-	protected final List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>(1);
+	protected final List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>(2);
 	
 	protected final MessageBus messageBus;
 	protected final MessageTransmissionPool messageTransmissionPool;
-	protected final Queue<MessageTransmission> messageQueue;
+	protected final Queue<MessageTransmission> messageQueue = new SynchronizedQueue<>();
 
 	private final int id;
 
@@ -61,12 +61,6 @@ public abstract class MessageExchange {
 
 		this.messageBus = messageBus;
 		this.messageTransmissionPool = messageBus.transmissionPool;
-
-		if(MessageBus.USE_JAVA_UTIL_CONCURRENT) {
-			messageQueue = new LinkedBlockingQueue<MessageTransmission>();
-		} else {
-			messageQueue = new SynchronizedQueue<MessageTransmission>();
-		}
 		
 		for(MessageHandler messageHandler : messageHandlers) {
 			this.messageHandlers.add(messageHandler);
@@ -175,6 +169,9 @@ public abstract class MessageExchange {
 	protected void flush() {
 		while (!messageQueue.isEmpty()) {
 			MessageTransmission messageTransmission = messageQueue.poll();
+			if(messageTransmission == null) {
+				continue;
+			}
 			for(MessageHandler messageHandler : messageHandlers) {
 				messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(),
 						this, messageTransmission.getMessage());
@@ -204,8 +201,8 @@ public abstract class MessageExchange {
 	 * Disposes of this {@link MessageExchange} so that it can no longer be used
 	 */
 	public void dispose() {
-		messageQueue.clear();
 		messageBus.dispose(this);
+		messageQueue.clear();
 	}
 
 	/**

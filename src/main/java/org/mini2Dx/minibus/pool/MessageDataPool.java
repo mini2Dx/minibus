@@ -24,16 +24,13 @@
 package org.mini2Dx.minibus.pool;
 
 import java.lang.reflect.Constructor;
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.exception.MissingPooledConstructorException;
 import org.mini2Dx.minibus.messagedata.ListMessageData;
-import org.mini2Dx.minibus.transmission.MessageTransmission;
-import org.mini2Dx.minibus.transmission.SynchronizedQueue;
+import org.mini2Dx.minibus.util.SynchronizedQueue;
 
 /**
  * Implements pooling for {@link PooledMessageData} instances. To use this
@@ -44,7 +41,7 @@ import org.mini2Dx.minibus.transmission.SynchronizedQueue;
 public class MessageDataPool<T extends PooledMessageData> {
 	public static final int DEFAULT_POOL_SIZE = 5;
 
-	private final Queue<T> pool;
+	private final Queue<T> pool = new SynchronizedQueue<T>();
 	private final Constructor<T> constructor;
 
 	/**
@@ -69,12 +66,6 @@ public class MessageDataPool<T extends PooledMessageData> {
 		} catch (NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 			throw new MissingPooledConstructorException(clazz);
-		}
-
-		if(MessageBus.USE_JAVA_UTIL_CONCURRENT) {
-			pool = new ConcurrentLinkedQueue<T>();
-		} else {
-			pool = new SynchronizedQueue<T>();
 		}
 
 		for (int i = 0; i < DEFAULT_POOL_SIZE; i++) {

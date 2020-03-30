@@ -36,14 +36,17 @@ import org.mini2Dx.minibus.exchange.query.QueryMessageExchange;
 import org.mini2Dx.minibus.exchange.query.QueryMessageExchangePool;
 import org.mini2Dx.minibus.transmission.MessageTransmission;
 import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
+import org.mini2Dx.minibus.util.JvmLockProvider;
+import org.mini2Dx.minibus.util.LockProvider;
+import org.mini2Dx.minibus.util.SnapshotArrayList;
 
 /**
  * A message bus to publishing {@link MessageData}s
  */
 public class MessageBus {
-	public static boolean USE_JAVA_UTIL_CONCURRENT = false;
+	public static LockProvider LOCK_PROVIDER = new JvmLockProvider();
 
-	final List<MessageExchange> exchangers;
+	final List<MessageExchange> exchangers = new SnapshotArrayList<MessageExchange>();
 	final MessageTransmissionPool transmissionPool = new MessageTransmissionPool();
 
 	private final MessageExchange anonymousExchange;
@@ -53,12 +56,6 @@ public class MessageBus {
 	 * Constructor
 	 */
 	public MessageBus() {
-		if(USE_JAVA_UTIL_CONCURRENT) {
-			exchangers = new CopyOnWriteArrayList<MessageExchange>();
-		} else {
-			exchangers = Collections.synchronizedList(new ArrayList<MessageExchange>());
-		}
-
 		anonymousExchange = new AnonymousMessageExchange(this);
 		queryMessageExchangePool = new QueryMessageExchangePool(this, exchangers);
 	}
@@ -201,8 +198,14 @@ public class MessageBus {
 		messageTransmission.setSource(source);
 		messageTransmission.setBroadcastMessage(true);
 
-		for (int i = exchangers.size() - 1; i >= 0; i--) {
-			MessageExchange exchange = exchangers.get(i);
+		broadcast(source, messageTransmission);
+	}
+
+	private void broadcast(MessageExchange source, MessageTransmission messageTransmission) {
+		for (MessageExchange exchange : exchangers) {
+			if (exchange == null) {
+				continue;
+			}
 			if (exchange.getId() == source.getId()) {
 				continue;
 			}

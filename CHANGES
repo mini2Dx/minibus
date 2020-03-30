@@ -1,3 +1,6 @@
+[1.5.0]
+- Add LockProvider interface to allow for alternative locking implementations
+
 [1.4.0]
 - Upgrade to Gradle 5.4
 - Reduced garbage generation by switching to synchronized ArrayDeque by default
