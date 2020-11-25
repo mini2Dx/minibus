@@ -32,9 +32,19 @@ public class SnapshotArrayList<T> implements List<T> {
 	private final Object iteratorLock = new Object();
 	private final ReadWriteLock lock = MessageBus.LOCK_PROVIDER.newReadWriteLock();
 	private final Queue<SnapshotIterator<T>> iteratorPool = new ArrayDeque<SnapshotIterator<T>>();
+
+	private final boolean ordered;
 	private Object[] array = new Object[32];
 
 	private int size = 0;
+
+	public SnapshotArrayList() {
+		this(false);
+	}
+
+	public SnapshotArrayList(boolean ordered) {
+		this.ordered = ordered;
+	}
 
 	private void ensureCapacity(int capacity) {
 		ArrayList list = new ArrayList();
@@ -119,8 +129,14 @@ public class SnapshotArrayList<T> implements List<T> {
 			if(!array[i].equals(o)) {
 				continue;
 			}
-			array[i] = array[size - 1];
-			array[size - 1] = null;
+			if(ordered) {
+				remove(i);
+				i--;
+			} else {
+				array[i] = array[size - 1];
+				array[size - 1] = null;
+			}
+
 			size--;
 			result = true;
 			break;
@@ -207,24 +223,44 @@ public class SnapshotArrayList<T> implements List<T> {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public T remove(int index) {
+	private T remove(int index, boolean throwException) {
 		Object result = null;
 		lock.writeLock().lock();
 		if(index < 0) {
 			lock.writeLock().unlock();
-			throw new IndexOutOfBoundsException();
+			if(throwException) {
+				throw new IndexOutOfBoundsException();
+			}
+			return null;
 		}
 		if(index >= size) {
 			lock.writeLock().unlock();
-			throw new IndexOutOfBoundsException();
+			if(throwException) {
+				throw new IndexOutOfBoundsException();
+			}
+			return null;
 		}
 
 		result = array[index];
-		array[index] = array[size - 1];
+
+		if(ordered) {
+			System.arraycopy(array, index + 1, array, index, size - 1 - index);
+		} else {
+			array[index] = array[size - 1];
+		}
+
 		size--;
 		lock.writeLock().unlock();
 		return (T) result;
+	}
+
+	public T safeRemove(int index) {
+		return remove(index, false);
+	}
+
+	@Override
+	public T remove(int index) {
+		return remove(index, true);
 	}
 
 	@Override

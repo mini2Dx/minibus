@@ -47,6 +47,7 @@ public class MessageBus {
 	public static LockProvider LOCK_PROVIDER = new JvmLockProvider();
 
 	final List<MessageExchange> exchangers = new SnapshotArrayList<MessageExchange>();
+	final List<CancelledMessageHandler> cancelledMessageHandlers = new SnapshotArrayList<CancelledMessageHandler>();
 	final MessageTransmissionPool transmissionPool = new MessageTransmissionPool();
 
 	private final MessageExchange anonymousExchange;
@@ -371,7 +372,72 @@ public class MessageBus {
 		broadcast(queryMessageExchange, messageType, messageData);
 	}
 
-	void dispose(MessageExchange messageExchange) {
+	/**
+	 * Cancels all messages in the bus.
+	 */
+	public void cancelAllMessages() {
+		cancelAllMessages(true);
+	}
+
+	/**
+	 * Cancels all messages in the bus
+	 * @param notify True if {@link CancelledMessageHandler}s should be notified
+	 */
+	public void cancelAllMessages(boolean notify) {
+		for(int i = exchangers.size() - 1; i >= 0; i--) {
+			if(i >= exchangers.size()) {
+				continue;
+			}
+			exchangers.get(i).cancelAllMessages(notify);
+		}
+	}
+
+	/**
+	 * Cancels all messages of a specific type in the bus
+	 * @param messageType The message type to cancel
+	 */
+	public void cancelAllMessages(String messageType) {
+		cancelAllMessages(messageType, true);
+	}
+
+	/**
+	 * Cancels all messages of a specific type in the bus
+	 * @param messageType The message type to cancel
+	 * @param notify True if {@link CancelledMessageHandler}s should be notified
+	 */
+	public void cancelAllMessages(String messageType, boolean notify) {
+		for(int i = exchangers.size() - 1; i >= 0; i--) {
+			if(i >= exchangers.size()) {
+				continue;
+			}
+			exchangers.get(i).cancelAllMessages(messageType, notify);
+		}
+	}
+
+	/**
+	 * Notify message exchanges of a deleted entity
+	 * @param entityId The entity ID
+	 */
+	public void entityDeleted(int entityId) {
+		for(int i = exchangers.size() - 1; i >= 0; i--) {
+			if(i >= exchangers.size()) {
+				continue;
+			}
+			exchangers.get(i).entityDeleted(entityId);
+		}
+	}
+
+	void notifyMessageCancelled(String messageType, MessageExchange source, MessageExchange receiver, MessageData messageData) {
+		for(int i = cancelledMessageHandlers.size() - 1; i >= 0; i--) {
+			if(i >= cancelledMessageHandlers.size()) {
+				continue;
+			}
+			final CancelledMessageHandler handler = cancelledMessageHandlers.get(i);
+			handler.onMessageCancelled(messageType, source, receiver, messageData);
+		}
+	}
+
+ 	void dispose(MessageExchange messageExchange) {
 		exchangers.remove(messageExchange);
 	}
 
@@ -401,6 +467,14 @@ public class MessageBus {
 	 */
 	public int getTotalActiveExchanges() {
 		return exchangers.size();
+	}
+
+	public void addCancelledMessageHandler(CancelledMessageHandler handler) {
+		cancelledMessageHandlers.add(handler);
+	}
+
+	public void removeCancelledMessageHandler(CancelledMessageHandler handler) {
+		cancelledMessageHandlers.remove(handler);
 	}
 
 	/**

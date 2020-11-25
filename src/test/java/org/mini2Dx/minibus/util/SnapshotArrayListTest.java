@@ -40,6 +40,17 @@ public class SnapshotArrayListTest {
 	}
 
 	@Test
+	public void testOrdered() {
+		final SnapshotArrayList<Integer> list = new SnapshotArrayList<Integer>(true);
+		for(int i = 0; i < 100; i++) {
+			list.add(i);
+		}
+		for(int i = 0; i < 100; i++) {
+			Assert.assertEquals(i, (int) list.remove(0));
+		}
+	}
+
+	@Test
 	public void testMultiThreadAdd() {
 		final CountDownLatch latch = new CountDownLatch(2);
 		final SnapshotArrayList<Object> list = new SnapshotArrayList<Object>();
@@ -48,6 +59,10 @@ public class SnapshotArrayListTest {
 			@Override
 			public void run() {
 				latch.countDown();
+
+				try {
+					latch.await();
+				} catch (Exception e) {}
 
 				for(int i = 0; i < 100; i++) {
 					list.add(new Object());
@@ -58,6 +73,10 @@ public class SnapshotArrayListTest {
 			@Override
 			public void run() {
 				latch.countDown();
+
+				try {
+					latch.await();
+				} catch (Exception e) {}
 
 				for(int i = 0; i < 100; i++) {
 					list.add(new Object());
@@ -102,6 +121,10 @@ public class SnapshotArrayListTest {
 			public void run() {
 				latch.countDown();
 
+				try {
+					latch.await();
+				} catch (Exception e) {}
+
 				for(int i = 0; i < 100; i++) {
 					final Object obj = new Object();
 					list.add(obj);
@@ -114,14 +137,19 @@ public class SnapshotArrayListTest {
 			public void run() {
 				latch.countDown();
 
-				for(int i = 0; i < 100; i++) {
-					while(!removeQueue.isEmpty()) {
-						final Object obj = removeQueue.peek();
-						if(list.remove(obj)) {
-							removeQueue.poll();
-						}
+				try {
+					latch.await();
+				} catch (Exception e) {}
+
+				int removedCount = 0;
+				while(removedCount < 100) {
+					final Object obj = removeQueue.peek();
+					if(list.remove(obj)) {
+						removeQueue.poll();
+						removedCount++;
 					}
 				}
+
 			}
 		});
 

@@ -23,22 +23,16 @@
  */
 package org.mini2Dx.minibus.util;
 
-import org.mini2Dx.minibus.MessageBus;
-
-import java.util.*;
-import java.util.concurrent.locks.ReadWriteLock;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Queue;
 
 public class SynchronizedQueue<T> implements Queue<T> {
-	private ReadWriteLock lock = MessageBus.LOCK_PROVIDER.newReadWriteLock();
-	private final Queue<T> queue = new ArrayDeque<T>();
+	private final SnapshotArrayList<T> queue = new SnapshotArrayList<T>();
 
 	@Override
 	public int size() {
-		int result = 0;
-		lock.readLock().lock();
-		result = queue.size();
-		lock.readLock().unlock();
-		return result;
+		return queue.size();
 	}
 
 	@Override
@@ -48,11 +42,7 @@ public class SynchronizedQueue<T> implements Queue<T> {
 
 	@Override
 	public boolean contains(Object o) {
-		boolean result = false;
-		lock.readLock().lock();
-		result = queue.contains(o);
-		lock.readLock().unlock();
-		return result;
+		return queue.contains(o);
 	}
 
 	@Override
@@ -62,81 +52,47 @@ public class SynchronizedQueue<T> implements Queue<T> {
 
 	@Override
 	public Object[] toArray() {
-		Object [] result = null;
-		lock.readLock().lock();
-		result = queue.toArray();
-		lock.readLock().unlock();
-		return result;
+		return queue.toArray();
 	}
 
 	@Override
 	public <T1> T1[] toArray(T1[] a) {
-		T1[] result = null;
-		lock.readLock().lock();
-		result = queue.toArray(a);
-		lock.readLock().unlock();
-		return result;
+		return queue.toArray(a);
 	}
 
 	@Override
 	public boolean add(T t) {
-		boolean result = false;
-		lock.writeLock().lock();
-		result = queue.add(t);
-		lock.writeLock().unlock();
-		return result;
+		return queue.add(t);
 	}
 
 	@Override
 	public boolean remove(Object o) {
-		boolean result = false;
-		lock.writeLock().lock();
-		result = queue.remove(o);
-		lock.writeLock().unlock();
-		return result;
+		return queue.remove(o);
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c) {
-		boolean result = false;
-		lock.readLock().lock();
-		result = queue.containsAll(c);
-		lock.readLock().unlock();
-		return result;
+		return queue.containsAll(c);
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends T> c) {
-		boolean result = false;
-		lock.writeLock().lock();
-		result = queue.addAll(c);
-		lock.writeLock().unlock();
-		return result;
+		return queue.addAll(c);
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		boolean result = false;
-		lock.writeLock().lock();
-		result = queue.removeAll(c);
-		lock.writeLock().unlock();
-		return result;
+		return queue.removeAll(c);
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		boolean result = false;
-		lock.writeLock().lock();
-		result = queue.retainAll(c);
-		lock.writeLock().unlock();
-		return result;
+		return queue.retainAll(c);
 	}
 
 	@Override
 	public void clear() {
-		lock.writeLock().lock();
 		queue.clear();
-		lock.writeLock().unlock();
 	}
 
 	@Override
@@ -146,33 +102,35 @@ public class SynchronizedQueue<T> implements Queue<T> {
 
 	@Override
 	public T remove() {
-		T result = null;
-		lock.writeLock().lock();
-		result = queue.remove();
-		lock.writeLock().unlock();
-		return result;
+		return poll();
 	}
 
 	@Override
 	public T poll() {
-		T result = null;
-		lock.writeLock().lock();
-		result = queue.poll();
-		lock.writeLock().unlock();
-		return result;
+		if(queue.size() == 0) {
+			return null;
+		}
+		return queue.safeRemove(0);
 	}
 
 	@Override
 	public T element() {
-		T result = null;
-		lock.readLock().lock();
-		result = queue.element();
-		lock.readLock().unlock();
-		return result;
+		if(queue.size() == 0) {
+			return null;
+		}
+		return queue.get(0);
 	}
 
 	@Override
 	public T peek() {
 		return element();
+	}
+
+	public T get(int index) {
+		return queue.get(index);
+	}
+
+	public T remove(int index) {
+		return queue.remove(index);
 	}
 }

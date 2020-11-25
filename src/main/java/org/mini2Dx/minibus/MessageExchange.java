@@ -42,7 +42,7 @@ public abstract class MessageExchange {
 	
 	protected final MessageBus messageBus;
 	protected final MessageTransmissionPool messageTransmissionPool;
-	protected final Queue<MessageTransmission> messageQueue = new SynchronizedQueue<>();
+	protected final SynchronizedQueue<MessageTransmission> messageQueue = new SynchronizedQueue<>();
 
 	private final int id;
 
@@ -64,6 +64,51 @@ public abstract class MessageExchange {
 		
 		for(MessageHandler messageHandler : messageHandlers) {
 			this.messageHandlers.add(messageHandler);
+		}
+	}
+
+	void entityDeleted(int entityId) {
+		for(int i = messageQueue.size() - 1; i >= 0; i--) {
+			if(i >= messageQueue.size()) {
+				continue;
+			}
+			final MessageTransmission messageTransmission = messageQueue.get(i);
+			if(messageTransmission.getMessage() instanceof EntityMessageData) {
+				final EntityMessageData entityMessageData = (EntityMessageData) messageTransmission.getMessage();
+				if(entityMessageData.getEntityId() != entityId) {
+					continue;
+				}
+				messageQueue.remove(i);
+				messageBus.notifyMessageCancelled(messageTransmission.getMessageType(), messageTransmission.getSource(), this, messageTransmission.getMessage());
+				messageTransmission.release();
+			}
+		}
+	}
+
+	public void cancelAllMessages(boolean notify) {
+		while(!messageQueue.isEmpty()) {
+			final MessageTransmission messageTransmission = messageQueue.poll();
+			if(notify) {
+				messageBus.notifyMessageCancelled(messageTransmission.getMessageType(), messageTransmission.getSource(), this, messageTransmission.getMessage());
+			}
+			messageTransmission.release();
+		}
+	}
+
+	public void cancelAllMessages(String messageType, boolean notify) {
+		for(int i = messageQueue.size() - 1; i >= 0; i--) {
+			if(i >= messageQueue.size()) {
+				continue;
+			}
+			final MessageTransmission messageTransmission = messageQueue.get(i);
+			if(!messageTransmission.getMessageType().equals(messageType)) {
+				continue;
+			}
+			messageQueue.remove(i);
+			if(notify) {
+				messageBus.notifyMessageCancelled(messageTransmission.getMessageType(), messageTransmission.getSource(), this, messageTransmission.getMessage());
+			}
+			messageTransmission.release();
 		}
 	}
 
@@ -222,5 +267,13 @@ public abstract class MessageExchange {
 	 */
 	public boolean isAnonymous() {
 		return false;
+	}
+
+	/**
+	 * Returns the current amount of messages queued
+	 * @return 0 if no messages queued
+	 */
+	public int getMessageQueueSize() {
+		return messageQueue.size();
 	}
 }

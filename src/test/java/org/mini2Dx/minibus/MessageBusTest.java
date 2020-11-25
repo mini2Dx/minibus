@@ -46,6 +46,10 @@ public class MessageBusTest implements MessageHandler {
 			public void run() {
 				countDownLatch.countDown();
 
+				try {
+					countDownLatch.await();
+				} catch (Exception e) {}
+
 				for(int i = 0; i < 10000; i++) {
 					messageBus.update(0.016f);
 				}
@@ -56,6 +60,10 @@ public class MessageBusTest implements MessageHandler {
 			public void run() {
 				countDownLatch.countDown();
 
+				try {
+					countDownLatch.await();
+				} catch (Exception e) {}
+
 				for(int i = 0; i < 10000; i++) {
 					messageBus.broadcast("MESSAGE-TYPE");
 				}
@@ -65,6 +73,10 @@ public class MessageBusTest implements MessageHandler {
 			@Override
 			public void run() {
 				countDownLatch.countDown();
+
+				try {
+					countDownLatch.await();
+				} catch (Exception e) {}
 
 				for(int i = 0; i < 10000; i++) {
 					final MessageExchange updateExchange = messageBus.createOnUpdateExchange();
@@ -78,6 +90,10 @@ public class MessageBusTest implements MessageHandler {
 			@Override
 			public void run() {
 				countDownLatch.countDown();
+
+				try {
+					countDownLatch.await();
+				} catch (Exception e) {}
 
 				for(int i = 0; i < 10000 * 10000; i++) {
 					while(!exchangeQueue.isEmpty()) {

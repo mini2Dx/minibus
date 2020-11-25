@@ -1,3 +1,9 @@
+[1.6.0]
+- Add EntityMessageData for transportation of entities in an Entity-Component-System pattern
+- Allow for cancellation of messages in the bus queue
+- Add method to notify message bus of deleted entities so that messages are cancelled
+- Add CancelledMessageHandler that can be notified of cancelled messages
+
 [1.5.0]
 - Add LockProvider interface to allow for alternative locking implementations
 
