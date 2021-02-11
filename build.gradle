@@ -36,8 +36,8 @@ repositories {
 	maven { url "https://mini2dx.org/maven/content/repositories/thirdparty" }
 }
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 task javadocJar(type: Jar) {
 	classifier = 'javadoc'
@@ -54,6 +54,8 @@ artifacts {
 }
 
 dependencies {
+	compile "org.mini2Dx:mini2Dx-lock-provider:1.1.0"
+
 	testCompile 'junit:junit:4.11'
 	testCompile "org.jmock:jmock-junit4:2.5.1"
 	testCompile "org.jmock:jmock-legacy:2.5.1"

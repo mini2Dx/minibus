@@ -23,10 +23,10 @@
  */
 package org.mini2Dx.minibus.util;
 
+import org.mini2Dx.lockprovider.ReadWriteLock;
 import org.mini2Dx.minibus.MessageBus;
 
 import java.util.*;
-import java.util.concurrent.locks.ReadWriteLock;
 
 public class SnapshotArrayList<T> implements List<T> {
 	private final Object iteratorLock = new Object();
@@ -59,9 +59,9 @@ public class SnapshotArrayList<T> implements List<T> {
 	@Override
 	public int size() {
 		final int result;
-		lock.readLock().lock();
+		lock.lockRead();
 		result = size;
-		lock.readLock().unlock();
+		lock.unlockRead();
 		return result;
 	}
 
@@ -73,14 +73,14 @@ public class SnapshotArrayList<T> implements List<T> {
 	@Override
 	public boolean contains(Object o) {
 		boolean result = false;
-		lock.readLock().lock();
+		lock.lockRead();
 		for(int i = 0; i < size; i++) {
 			if(array[i].equals(o)) {
 				result = true;
 				break;
 			}
 		}
-		lock.readLock().unlock();
+		lock.unlockRead();
 		return result;
 	}
 
@@ -94,9 +94,9 @@ public class SnapshotArrayList<T> implements List<T> {
 				result = iteratorPool.poll();
 			}
 		}
-		lock.readLock().lock();
+		lock.lockRead();
 		result.init(array, size);
-		lock.readLock().unlock();
+		lock.unlockRead();
 		return result;
 	}
 
@@ -112,11 +112,11 @@ public class SnapshotArrayList<T> implements List<T> {
 
 	@Override
 	public boolean add(T t) {
-		lock.writeLock().lock();
+		lock.lockWrite();
 		ensureCapacity(size + 1);
 		array[size] = t;
 		size++;
-		lock.writeLock().unlock();
+		lock.unlockWrite();
 		return true;
 	}
 
@@ -124,7 +124,7 @@ public class SnapshotArrayList<T> implements List<T> {
 	public boolean remove(Object o) {
 		boolean result = false;
 
-		lock.writeLock().lock();
+		lock.lockWrite();
 		for(int i = 0; i < size; i++) {
 			if(!array[i].equals(o)) {
 				continue;
@@ -141,7 +141,7 @@ public class SnapshotArrayList<T> implements List<T> {
 			result = true;
 			break;
 		}
-		lock.writeLock().unlock();
+		lock.unlockWrite();
 
 		return result;
 	}
@@ -158,9 +158,9 @@ public class SnapshotArrayList<T> implements List<T> {
 
 	@Override
 	public boolean addAll(Collection<? extends T> c) {
-		lock.writeLock().lock();
+		lock.lockWrite();
 		ensureCapacity(size + c.size());
-		lock.writeLock().unlock();
+		lock.unlockWrite();
 		for(T o : c) {
 			add(o);
 		}
@@ -188,28 +188,28 @@ public class SnapshotArrayList<T> implements List<T> {
 
 	@Override
 	public void clear() {
-		lock.writeLock().lock();
+		lock.lockWrite();
 		for(int i = 0; i < array.length; i++) {
 			array[i] = null;
 		}
 		size = 0;
-		lock.writeLock().unlock();
+		lock.unlockWrite();
 	}
 
 	@Override
 	public T get(int index) {
 		T result = null;
-		lock.readLock().lock();
+		lock.lockRead();
 		if(index < 0) {
-			lock.readLock().unlock();
+			lock.unlockRead();
 			throw new IndexOutOfBoundsException();
 		}
 		if(index >= size) {
-			lock.readLock().unlock();
+			lock.unlockRead();
 			throw new IndexOutOfBoundsException();
 		}
 		result = (T) array[index];
-		lock.readLock().unlock();
+		lock.unlockRead();
 		return result;
 	}
 
@@ -225,16 +225,16 @@ public class SnapshotArrayList<T> implements List<T> {
 
 	private T remove(int index, boolean throwException) {
 		Object result = null;
-		lock.writeLock().lock();
+		lock.lockWrite();
 		if(index < 0) {
-			lock.writeLock().unlock();
+			lock.unlockWrite();
 			if(throwException) {
 				throw new IndexOutOfBoundsException();
 			}
 			return null;
 		}
 		if(index >= size) {
-			lock.writeLock().unlock();
+			lock.unlockWrite();
 			if(throwException) {
 				throw new IndexOutOfBoundsException();
 			}
@@ -250,7 +250,7 @@ public class SnapshotArrayList<T> implements List<T> {
 		}
 
 		size--;
-		lock.writeLock().unlock();
+		lock.unlockWrite();
 		return (T) result;
 	}
 
@@ -265,27 +265,27 @@ public class SnapshotArrayList<T> implements List<T> {
 
 	@Override
 	public int indexOf(Object o) {
-		lock.readLock().lock();
+		lock.lockRead();
 		for(int i = 0; i < size; i++) {
 			if(array[i].equals(o)) {
-				lock.readLock().unlock();
+				lock.unlockRead();
 				return i;
 			}
 		}
-		lock.readLock().unlock();
+		lock.unlockRead();
 		return -1;
 	}
 
 	@Override
 	public int lastIndexOf(Object o) {
-		lock.readLock().lock();
+		lock.lockRead();
 		for(int i = size - 1; i >= 0; i--) {
 			if(array[i].equals(o)) {
-				lock.readLock().unlock();
+				lock.unlockRead();
 				return i;
 			}
 		}
-		lock.readLock().unlock();
+		lock.unlockRead();
 		return -1;
 	}
 

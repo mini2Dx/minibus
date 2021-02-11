@@ -1,3 +1,7 @@
+[1.7.0]
+- Changed to using mini2Dx-lock-provider library to support game consoles
+- Source/target compatability now Java 8
+
 [1.6.0]
 - Add EntityMessageData for transportation of entities in an Entity-Component-System pattern
 - Allow for cancellation of messages in the bus queue

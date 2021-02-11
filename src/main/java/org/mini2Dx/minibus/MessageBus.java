@@ -23,11 +23,10 @@
  */
 package org.mini2Dx.minibus;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.mini2Dx.lockprovider.Locks;
+import org.mini2Dx.lockprovider.jvm.JvmLocks;
 import org.mini2Dx.minibus.exchange.ConcurrentMessageExchange;
 import org.mini2Dx.minibus.exchange.ImmediateMessageExchange;
 import org.mini2Dx.minibus.exchange.IntervalMessageExchange;
@@ -36,15 +35,13 @@ import org.mini2Dx.minibus.exchange.query.QueryMessageExchange;
 import org.mini2Dx.minibus.exchange.query.QueryMessageExchangePool;
 import org.mini2Dx.minibus.transmission.MessageTransmission;
 import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
-import org.mini2Dx.minibus.util.JvmLockProvider;
-import org.mini2Dx.minibus.util.LockProvider;
 import org.mini2Dx.minibus.util.SnapshotArrayList;
 
 /**
  * A message bus to publishing {@link MessageData}s
  */
 public class MessageBus {
-	public static LockProvider LOCK_PROVIDER = new JvmLockProvider();
+	public static Locks LOCK_PROVIDER = new JvmLocks();
 
 	final List<MessageExchange> exchangers = new SnapshotArrayList<MessageExchange>();
 	final List<CancelledMessageHandler> cancelledMessageHandlers = new SnapshotArrayList<CancelledMessageHandler>();
