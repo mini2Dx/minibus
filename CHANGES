@@ -1,3 +1,6 @@
+[1.7.1]
+- Reduce allocations in MessageExchange
+
 [1.7.0]
 - Changed to using mini2Dx-lock-provider library to support game consoles
 - Source/target compatability now Java 8
