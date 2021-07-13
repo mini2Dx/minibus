@@ -25,6 +25,7 @@ package org.mini2Dx.minibus;
 
 import org.mini2Dx.minibus.transmission.MessageTransmission;
 import org.mini2Dx.minibus.transmission.MessageTransmissionPool;
+import org.mini2Dx.minibus.util.SnapshotArrayList;
 import org.mini2Dx.minibus.util.SynchronizedQueue;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class MessageExchange {
 	private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
 
-	protected final List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>(2);
+	protected final List<MessageHandler> messageHandlers = new SnapshotArrayList<MessageHandler>();
 	
 	protected final MessageBus messageBus;
 	protected final MessageTransmissionPool messageTransmissionPool;
