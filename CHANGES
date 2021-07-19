@@ -1,3 +1,6 @@
+[1.7.2]
+- Fix ImmediateExchange not returning MesssageTransmission to pool
+
 [1.7.1]
 - Reduce allocations in MessageExchange
 

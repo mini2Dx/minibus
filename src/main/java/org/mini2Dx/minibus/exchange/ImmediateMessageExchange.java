@@ -27,6 +27,7 @@ import org.mini2Dx.minibus.MessageBus;
 import org.mini2Dx.minibus.MessageData;
 import org.mini2Dx.minibus.MessageExchange;
 import org.mini2Dx.minibus.MessageHandler;
+import org.mini2Dx.minibus.transmission.MessageTransmission;
 
 /**
  * Processes {@link MessageData}s immediately - effectively implements the
@@ -41,6 +42,11 @@ public class ImmediateMessageExchange extends MessageExchange {
 
 	@Override
 	public void update(float delta) {}
+
+	@Override
+	protected void postQueue(MessageTransmission messageTransmission) {
+		messageTransmission.release();
+	}
 
 	@Override
 	public boolean isImmediate() {
