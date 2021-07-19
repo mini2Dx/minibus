@@ -62,6 +62,7 @@ public class QueryMessageExchange extends ImmediateMessageExchange {
 
 	@Override
 	protected void postQueue(MessageTransmission messageTransmission) {
+		super.postQueue(messageTransmission);
 		dispose();
 	}
 
