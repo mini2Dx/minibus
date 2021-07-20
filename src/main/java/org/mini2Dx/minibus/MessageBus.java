@@ -200,6 +200,8 @@ public class MessageBus {
 	}
 
 	private void broadcast(MessageExchange source, MessageTransmission messageTransmission) {
+		//Allocate and release to prevent immediate return to pool on immediate exchanges
+		messageTransmission.allocate();
 		for (MessageExchange exchange : exchangers) {
 			if (exchange == null) {
 				continue;
@@ -210,6 +212,7 @@ public class MessageBus {
 			messageTransmission.allocate();
 			exchange.queue(messageTransmission);
 		}
+		messageTransmission.release();
 	}
 
 	/**

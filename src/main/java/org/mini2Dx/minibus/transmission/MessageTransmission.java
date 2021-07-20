@@ -55,6 +55,8 @@ public class MessageTransmission {
 				((PooledMessageData) messageData).release();
 			}
 			allocations.set(0);
+			messageType = "";
+			messageData = null;
 			transmissionPool.release(this);
 		}
 	}

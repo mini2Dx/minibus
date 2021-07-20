@@ -24,6 +24,7 @@
 package org.mini2Dx.minibus;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Queue;
@@ -33,8 +34,26 @@ import java.util.concurrent.CountDownLatch;
 public class MessageBusTest implements MessageHandler {
 	private final CountDownLatch countDownLatch = new CountDownLatch(4);
 	private final Queue<MessageExchange> exchangeQueue = new ConcurrentLinkedQueue<MessageExchange>();
+	private final Queue<String> messagesReceived = new ConcurrentLinkedQueue<>();
 
 	private MessageBus messageBus;
+
+	@Test
+	public void testMessageTransmissionAllocateOnImmediateExchange() {
+		messageBus = new MessageBus();
+		messageBus.createImmediateExchange(MessageBusTest.this);
+		messageBus.createImmediateExchange(MessageBusTest.this);
+
+		final String messageType = "TEST";
+		messageBus.broadcast(messageType);
+		messageBus.update(0.16f);
+		Assert.assertEquals(2, exchangeQueue.size());
+		Assert.assertEquals(2, messagesReceived.size());
+
+		while(!messagesReceived.isEmpty()) {
+			Assert.assertEquals(messageType, messagesReceived.poll());
+		}
+	}
 
 	@Test
 	public void testConcurrentExchangeCreate() {
@@ -123,5 +142,6 @@ public class MessageBusTest implements MessageHandler {
 	public void onMessageReceived(String messageType, MessageExchange source, MessageExchange receiver, MessageData messageData) {
 		final MessageExchange updateExchange = messageBus.createOnUpdateExchange(MessageBusTest.this);
 		exchangeQueue.offer(updateExchange);
+		messagesReceived.add(messageType);
 	}
 }

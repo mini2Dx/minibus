@@ -1,3 +1,6 @@
+[1.7.3]
+- Fix MessageTransmissions being deallocated early when sending to multiple ImmediateExchanges
+
 [1.7.2]
 - Fix ImmediateExchange not returning MesssageTransmission to pool
 
