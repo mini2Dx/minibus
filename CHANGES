@@ -1,3 +1,6 @@
+[1.7.4]
+- Fix race condition in MessageTransmissionPool.allocate(). Add unit test.
+
 [1.7.3]
 - Fix MessageTransmissions being deallocated early when sending to multiple ImmediateExchanges
 
