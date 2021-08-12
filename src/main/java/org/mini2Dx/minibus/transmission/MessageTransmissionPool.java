@@ -40,10 +40,11 @@ public class MessageTransmissionPool {
 	 * @return
 	 */
 	public MessageTransmission allocate() {
-		if(pool.isEmpty()) {
+		final MessageTransmission result = pool.poll();
+		if(result == null) {
 			return new MessageTransmission(this);
 		}
-		return pool.poll();
+		return result;
 	}
 	
 	/**
