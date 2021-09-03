@@ -53,6 +53,42 @@ public class MessageBusTest implements MessageHandler {
 		while(!messagesReceived.isEmpty()) {
 			Assert.assertEquals(messageType, messagesReceived.poll());
 		}
+		Assert.assertEquals(1, messageBus.getMessageTransmissionPoolSize());
+	}
+
+	@Test
+	public void testMessageTransmissionAllocateSend() {
+		messageBus = new MessageBus();
+		MessageExchange source = messageBus.createImmediateExchange(MessageBusTest.this);
+		MessageExchange destination = messageBus.createImmediateExchange(MessageBusTest.this);
+
+		final String messageType = "TEST";
+		messageBus.send(source, destination, messageType);
+		messageBus.update(0.16f);
+		Assert.assertEquals(1, exchangeQueue.size());
+		Assert.assertEquals(1, messagesReceived.size());
+
+		while(!messagesReceived.isEmpty()) {
+			Assert.assertEquals(messageType, messagesReceived.poll());
+		}
+		Assert.assertEquals(1, messageBus.getMessageTransmissionPoolSize());
+	}
+
+	@Test
+	public void testMessageTransmissionAllocateSendTo() {
+		messageBus = new MessageBus();
+		MessageExchange destination = messageBus.createImmediateExchange(MessageBusTest.this);
+
+		final String messageType = "TEST";
+		messageBus.sendTo(destination, messageType);
+		messageBus.update(0.16f);
+		Assert.assertEquals(1, exchangeQueue.size());
+		Assert.assertEquals(1, messagesReceived.size());
+
+		while(!messagesReceived.isEmpty()) {
+			Assert.assertEquals(messageType, messagesReceived.poll());
+		}
+		Assert.assertEquals(1, messageBus.getMessageTransmissionPoolSize());
 	}
 
 	@Test

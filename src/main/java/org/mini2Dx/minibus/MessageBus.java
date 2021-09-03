@@ -469,6 +469,10 @@ public class MessageBus {
 		return exchangers.size();
 	}
 
+	public int getMessageTransmissionPoolSize() {
+		return transmissionPool.size();
+	}
+
 	public void addCancelledMessageHandler(CancelledMessageHandler handler) {
 		cancelledMessageHandlers.add(handler);
 	}

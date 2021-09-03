@@ -54,4 +54,8 @@ public class MessageTransmissionPool {
 	public void release(MessageTransmission messageTransmission) {
 		pool.offer(messageTransmission);
 	}
+
+	public int size() {
+		return pool.size();
+	}
 }
