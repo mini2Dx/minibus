@@ -1,3 +1,6 @@
+[1.7.5]
+- Remove ArrayList allocation in SnapshotArrayList.ensureCapacity
+
 [1.7.4]
 - Fix race condition in MessageTransmissionPool.allocate(). Add unit test.
 
