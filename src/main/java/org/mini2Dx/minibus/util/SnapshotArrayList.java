@@ -47,7 +47,6 @@ public class SnapshotArrayList<T> implements List<T> {
 	}
 
 	private void ensureCapacity(int capacity) {
-		ArrayList list = new ArrayList();
 		if(capacity <= array.length) {
 			return;
 		}
