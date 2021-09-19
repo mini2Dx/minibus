@@ -473,6 +473,10 @@ public class MessageBus {
 		return transmissionPool.size();
 	}
 
+	public int getCurrentMessageTransmissionsAllocated() {
+		return transmissionPool.getTotalAllocated();
+	}
+
 	public void addCancelledMessageHandler(CancelledMessageHandler handler) {
 		cancelledMessageHandlers.add(handler);
 	}

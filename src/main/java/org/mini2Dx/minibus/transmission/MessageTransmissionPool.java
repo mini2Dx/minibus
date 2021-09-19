@@ -28,6 +28,7 @@ import org.mini2Dx.minibus.util.SynchronizedQueue;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An object pool of {@link MessageTransmission} instances to reduce memory allocations
@@ -35,12 +36,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class MessageTransmissionPool {
 	private final Queue<MessageTransmission> pool = new SynchronizedQueue<MessageTransmission>();
 
+	private final AtomicInteger totalAllocated = new AtomicInteger();
+
 	/**
 	 * Allocates a new {@link MessageTransmission} from the pool
 	 * @return
 	 */
 	public MessageTransmission allocate() {
 		final MessageTransmission result = pool.poll();
+		totalAllocated.incrementAndGet();
 		if(result == null) {
 			return new MessageTransmission(this);
 		}
@@ -52,10 +56,15 @@ public class MessageTransmissionPool {
 	 * @param messageTransmission
 	 */
 	public void release(MessageTransmission messageTransmission) {
+		totalAllocated.decrementAndGet();
 		pool.offer(messageTransmission);
 	}
 
 	public int size() {
 		return pool.size();
+	}
+
+	public int getTotalAllocated() {
+		return totalAllocated.get();
 	}
 }
