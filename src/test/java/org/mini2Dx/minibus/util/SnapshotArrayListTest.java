@@ -170,6 +170,10 @@ public class SnapshotArrayListTest {
 				final Object item = list.safeRemove(0);
 				if(item != null) {
 					totalItemsRemoved.incrementAndGet();
+				} else {
+					try {
+						Thread.sleep(0, 10);
+					} catch (InterruptedException e) { }
 				}
 			}
 		});
