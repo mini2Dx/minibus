@@ -26,11 +26,35 @@ package org.mini2Dx.minibus.util;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SnapshotArrayListTest {
+
+	@Test
+	public void testAddRemoveLargeAmount() {
+		final int totalItems = 1000;
+		final SnapshotArrayList<Object> list = new SnapshotArrayList<Object>();
+		for(int i = 0; i < totalItems; i++) {
+			list.add(new Object());
+			Assert.assertEquals(i + 1, list.size());
+		}
+		final List<Object> items = new ArrayList<>();
+		for(int i = 0; i < totalItems; i++) {
+			Assert.assertEquals(1000 - i, list.size());
+			final Object item = list.safeRemove(0);
+			Assert.assertNotNull(item);
+			items.add(item);
+		}
+		for(int i = 0; i < totalItems; i++) {
+			list.add(items.remove(0));
+			Assert.assertEquals(i + 1, list.size());
+		}
+	}
 
 	@Test
 	public void testSingleThreadAdd() {
@@ -108,6 +132,52 @@ public class SnapshotArrayListTest {
 		}
 
 		Assert.assertEquals(100, result);
+	}
+
+	@Test
+	public void testMultiThreadAddSafeRemove() {
+		final int totalItems = 10000;
+		final CountDownLatch latch = new CountDownLatch(2);
+		final SnapshotArrayList<Object> list = new SnapshotArrayList<Object>();
+		final AtomicInteger totalItemsRemoved = new AtomicInteger();
+
+		final Thread[] threads = new Thread[2];
+		threads[0] = new Thread(() -> {
+			latch.countDown();
+
+			try {
+				latch.await();
+			} catch (InterruptedException e) {}
+
+			for(int i = 0; i < totalItems; i++) {
+				list.add(new Object());
+			}
+		});
+		threads[1] = new Thread(() -> {
+			latch.countDown();
+
+			try {
+				latch.await();
+			} catch (InterruptedException e) {}
+
+			for(int i = 0; i < totalItems * 2; i++) {
+				final Object item = list.safeRemove(0);
+				if(item != null) {
+					totalItemsRemoved.incrementAndGet();
+				}
+			}
+		});
+
+		for(int i = 0; i < threads.length; i++) {
+			threads[i].start();
+		}
+		for(int i = 0; i < threads.length; i++) {
+			try {
+				threads[i].join();
+			} catch (InterruptedException e) {}
+		}
+		Assert.assertEquals(0, list.size());
+		Assert.assertEquals(totalItems, totalItemsRemoved.get());
 	}
 
 	@Test
