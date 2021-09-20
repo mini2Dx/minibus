@@ -42,10 +42,12 @@ public class SnapshotArrayListTest {
 		for(int i = 0; i < totalItems; i++) {
 			list.add(new Object());
 			Assert.assertEquals(i + 1, list.size());
+			Assert.assertEquals(i + 1, list.populatedArraySize());
 		}
 		final List<Object> items = new ArrayList<>();
 		for(int i = 0; i < totalItems; i++) {
 			Assert.assertEquals(1000 - i, list.size());
+			Assert.assertEquals(1000 - i, list.populatedArraySize());
 			final Object item = list.safeRemove(0);
 			Assert.assertNotNull(item);
 			items.add(item);
@@ -53,6 +55,7 @@ public class SnapshotArrayListTest {
 		for(int i = 0; i < totalItems; i++) {
 			list.add(items.remove(0));
 			Assert.assertEquals(i + 1, list.size());
+			Assert.assertEquals(i + 1, list.populatedArraySize());
 		}
 	}
 
@@ -61,6 +64,7 @@ public class SnapshotArrayListTest {
 		final SnapshotArrayList<Object> list = new SnapshotArrayList<Object>();
 		list.add(new Object());
 		Assert.assertEquals(1, list.size());
+		Assert.assertEquals(1, list.populatedArraySize());
 	}
 
 	@Test
@@ -69,6 +73,7 @@ public class SnapshotArrayListTest {
 		for(int i = 0; i < 100; i++) {
 			list.add(i);
 		}
+		Assert.assertEquals(100, list.populatedArraySize());
 		for(int i = 0; i < 100; i++) {
 			Assert.assertEquals(i, (int) list.remove(0));
 		}
@@ -117,6 +122,7 @@ public class SnapshotArrayListTest {
 		} catch (Exception e) {}
 
 		Assert.assertEquals(200, list.size());
+		Assert.assertEquals(200, list.populatedArraySize());
 	}
 
 	@Test
@@ -177,6 +183,7 @@ public class SnapshotArrayListTest {
 			} catch (InterruptedException e) {}
 		}
 		Assert.assertEquals(0, list.size());
+		Assert.assertEquals(0, list.populatedArraySize());
 		Assert.assertEquals(totalItems, totalItemsRemoved.get());
 	}
 
@@ -232,5 +239,6 @@ public class SnapshotArrayListTest {
 		} catch (Exception e) {}
 
 		Assert.assertEquals(0, list.size());
+		Assert.assertEquals(0, list.populatedArraySize());
 	}
 }

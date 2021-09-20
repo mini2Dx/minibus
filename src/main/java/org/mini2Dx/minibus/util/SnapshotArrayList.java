@@ -64,6 +64,18 @@ public class SnapshotArrayList<T> implements List<T> {
 		return result;
 	}
 
+	int populatedArraySize() {
+		int result = 0;
+		lock.lockRead();
+		for(int i = 0; i < array.length; i++) {
+			if(array[i] != null) {
+				result++;
+			}
+		}
+		lock.unlockRead();
+		return result;
+	}
+
 	@Override
 	public boolean isEmpty() {
 		return size() == 0;
@@ -246,6 +258,7 @@ public class SnapshotArrayList<T> implements List<T> {
 			System.arraycopy(array, index + 1, array, index, size - 1 - index);
 		} else {
 			array[index] = array[size - 1];
+			array[size - 1] = null;
 		}
 
 		size--;

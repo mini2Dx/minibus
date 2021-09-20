@@ -144,6 +144,7 @@ public abstract class MessageExchange {
 	 */
 	void queue(MessageTransmission messageTransmission) {
 		if (!preQueue(messageTransmission)) {
+			messageTransmission.release();
 			return;
 		}
 		if (isImmediate()) {

@@ -25,6 +25,7 @@ package org.mini2Dx.minibus;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Queue;
@@ -37,6 +38,14 @@ public class MessageBusTest implements MessageHandler {
 	private final Queue<String> messagesReceived = new ConcurrentLinkedQueue<>();
 
 	private MessageBus messageBus;
+
+	private boolean query = false, incorrectResponse = false;
+
+	@Before
+	public void setUp() {
+		query = false;
+		incorrectResponse = false;
+	}
 
 	@Test
 	public void testMessageTransmissionAllocateOnImmediateExchange() {
@@ -97,6 +106,79 @@ public class MessageBusTest implements MessageHandler {
 			Assert.assertEquals(messageType, messagesReceived.poll());
 		}
 		Assert.assertEquals(1, messageBus.getMessageTransmissionPoolSize());
+		Assert.assertEquals(0, messageBus.getCurrentMessageTransmissionsAllocated());
+	}
+
+	@Test
+	public void testMessageTransmissionAllocateBroadcastQuery() {
+		messageBus = new MessageBus();
+		MessageExchange source = messageBus.createImmediateExchange(MessageBusTest.this);
+		query = true;
+
+		final String messageType = "TEST";
+		messageBus.broadcastQuery(messageType, messageType, new MessageHandler() {
+			@Override
+			public void onMessageReceived(String messageType, MessageExchange source, MessageExchange receiver, MessageData messageData) {
+				messagesReceived.add(messageType);
+			}
+		});
+		Assert.assertEquals(0, messageBus.getCurrentMessageTransmissionsAllocated());
+		messageBus.update(0.16f);
+		Assert.assertEquals(2, messagesReceived.size());
+
+		while(!messagesReceived.isEmpty()) {
+			Assert.assertEquals(messageType, messagesReceived.poll());
+		}
+		Assert.assertEquals(2, messageBus.getMessageTransmissionPoolSize());
+		Assert.assertEquals(0, messageBus.getCurrentMessageTransmissionsAllocated());
+	}
+
+	@Test
+	public void testMessageTransmissionAllocateBroadcastQueryDirectResponse() {
+		messageBus = new MessageBus();
+		MessageExchange source = messageBus.createImmediateExchange(MessageBusTest.this);
+		query = true;
+
+		final String messageType = "TEST";
+		messageBus.broadcastQuery(messageType, messageType, true, new MessageHandler() {
+			@Override
+			public void onMessageReceived(String messageType, MessageExchange source, MessageExchange receiver, MessageData messageData) {
+				messagesReceived.add(messageType);
+			}
+		});
+		Assert.assertEquals(0, messageBus.getCurrentMessageTransmissionsAllocated());
+		messageBus.update(0.16f);
+		Assert.assertEquals(2, messagesReceived.size());
+
+		while(!messagesReceived.isEmpty()) {
+			Assert.assertEquals(messageType, messagesReceived.poll());
+		}
+		Assert.assertEquals(2, messageBus.getMessageTransmissionPoolSize());
+		Assert.assertEquals(0, messageBus.getCurrentMessageTransmissionsAllocated());
+	}
+
+	@Test
+	public void testMessageTransmissionAllocateBroadcastQueryIncorrectResponse() {
+		messageBus = new MessageBus();
+		MessageExchange source = messageBus.createImmediateExchange(MessageBusTest.this);
+		query = true;
+		incorrectResponse = true;
+
+		final String messageType = "TEST";
+		messageBus.broadcastQuery(messageType, messageType, true, new MessageHandler() {
+			@Override
+			public void onMessageReceived(String messageType, MessageExchange source, MessageExchange receiver, MessageData messageData) {
+				messagesReceived.add(messageType);
+			}
+		});
+		Assert.assertEquals(0, messageBus.getCurrentMessageTransmissionsAllocated());
+		messageBus.update(0.16f);
+		Assert.assertEquals(1, messagesReceived.size());
+
+		while(!messagesReceived.isEmpty()) {
+			Assert.assertEquals(messageType, messagesReceived.poll());
+		}
+		Assert.assertEquals(2, messageBus.getMessageTransmissionPoolSize());
 		Assert.assertEquals(0, messageBus.getCurrentMessageTransmissionsAllocated());
 	}
 
@@ -207,5 +289,13 @@ public class MessageBusTest implements MessageHandler {
 		final MessageExchange updateExchange = messageBus.createOnUpdateExchange(MessageBusTest.this);
 		exchangeQueue.offer(updateExchange);
 		messagesReceived.add(messageType);
+
+		if(query) {
+			if(incorrectResponse) {
+				receiver.sendTo(source, "INCORRECT");
+			} else {
+				receiver.sendTo(source, messageType);
+			}
+		}
 	}
 }
