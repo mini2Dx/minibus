@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class MessageExchange {
 	private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
 
-	protected final List<MessageHandler> messageHandlers = new SnapshotArrayList<MessageHandler>();
+	protected final MessageHandler[] messageHandlers;
 	
 	protected final MessageBus messageBus;
 	protected final MessageTransmissionPool messageTransmissionPool;
@@ -62,10 +62,7 @@ public abstract class MessageExchange {
 
 		this.messageBus = messageBus;
 		this.messageTransmissionPool = messageBus.transmissionPool;
-		
-		for(MessageHandler messageHandler : messageHandlers) {
-			this.messageHandlers.add(messageHandler);
-		}
+		this.messageHandlers = messageHandlers;
 	}
 
 	void entityDeleted(int entityId) {
@@ -148,7 +145,8 @@ public abstract class MessageExchange {
 			return;
 		}
 		if (isImmediate()) {
-			for(MessageHandler messageHandler : messageHandlers) {
+			for(int i = messageHandlers.length - 1; i >= 0; i--) {
+				final MessageHandler messageHandler = messageHandlers[i];
 				messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(),
 						this, messageTransmission.getMessage());
 			}
@@ -219,7 +217,8 @@ public abstract class MessageExchange {
 			if(messageTransmission == null) {
 				continue;
 			}
-			for(MessageHandler messageHandler : messageHandlers) {
+			for(int i = messageHandlers.length - 1; i >= 0; i--) {
+				final MessageHandler messageHandler = messageHandlers[i];
 				messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(),
 						this, messageTransmission.getMessage());
 			}

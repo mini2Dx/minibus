@@ -1,3 +1,6 @@
+[1.8.1]
+- Reduce memory copy operations during message broadcast
+
 [1.8.0]
 - Improve performance of SynchronizedQueue
 

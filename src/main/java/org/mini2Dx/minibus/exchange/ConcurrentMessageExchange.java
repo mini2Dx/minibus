@@ -69,7 +69,8 @@ public class ConcurrentMessageExchange extends MessageExchange implements Runnab
 				if(messageTransmission.getSource() == null) {
 					return;
 				}
-				for(MessageHandler messageHandler : messageHandlers) {
+				for(int i = messageHandlers.length - 1; i >= 0; i--) {
+					final MessageHandler messageHandler = messageHandlers[i];
 					messageHandler.onMessageReceived(messageTransmission.getMessageType(), messageTransmission.getSource(), this, messageTransmission.getMessage());
 				}
 				messageTransmission.release();
